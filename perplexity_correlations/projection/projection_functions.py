@@ -9,8 +9,8 @@ def _value_check_estimate_and_tau(estimate, tau):
     if np.any(tau <= 0):
         raise ValueError(
             "tau values must be positive.\
-            If you want certain tau values to be zero, then\
-                run the estimate without those domains."
+If you want certain tau values to be zero, then\
+run the estimate without those domains."
         )
     if np.sum(tau) < 1:
         raise ValueError("Projection is infeasible because sum of tau values is < 1.")
@@ -37,7 +37,7 @@ def linear(estimate, tau):
         if (1 - np.sum(projected_estimate)) > tau_sort[find_index]:
             print(
                 f"Warning: numerical issues likely caused violation of\
-                    tau bounds: {1-np.sum(projected_estimate)} > {tau_sort[find_index]}"
+tau bounds: {1-np.sum(projected_estimate)} > {tau_sort[find_index]}"
             )
         projected_estimate[indices_of_largest_to_smallest[find_index]] = 1 - np.sum(
             estimate

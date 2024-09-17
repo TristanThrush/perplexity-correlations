@@ -1,16 +1,17 @@
 import numpy as np
+import warnings
 
 
 def _value_check_X_and_y(X, y):
     if np.any(X < 0):
-        raise ValueError(
+        warnings.warn(
             "X has negative entries,\
-            are you sure this is a matrix of bits-per-byte values?"
+are you sure this is a matrix of bits-per-byte values?"
         )
     if np.any((y < 0) | (y > 1)):
-        raise ValueError(
+        warnings.warn(
             "y has negative outside of the\
-            range [0,1], are you sure this is a vector of benchmark errors?"
+range [0,1], are you sure this is a vector of benchmark errors?"
         )
     if X.ndim != 2:
         raise ValueError(f"X has {X.ndim} dimensions but expected 2.")
