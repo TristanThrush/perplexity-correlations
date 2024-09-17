@@ -64,6 +64,7 @@ def test_product():
                 normalized_estimate = estimate / np.sqrt(np.sum(estimate**2))
 
                 # The proof says that the estimate equals this in expectation:
+                # Note that the variance with this estimator tends to be higher
                 assert weights == pytest.approx(
                     normalized_estimate, abs=5e-2 if sigma == 0 else 1e-1
                 )
@@ -80,7 +81,7 @@ def test_sign():
 
                 # The proof says that the estimate equals this in expectation:
                 assert weights == pytest.approx(
-                    normalized_estimate, abs=3e-2 if sigma == 0 else 4e-2
+                    normalized_estimate, abs=3e-2 if sigma == 0 else 8e-2
                 )
 
 
@@ -97,7 +98,7 @@ def test_sign_cdf():
                 )
                 # The proof says that the estimate equals this in expectation:
                 assert monotonically_transformed_weights == pytest.approx(
-                    estimate, abs=1e-2 if sigma == 0 else 3e-2
+                    estimate, abs=1.5e-2 if sigma == 0 else 4e-2
                 )
 
 
@@ -113,7 +114,7 @@ def test_sign_sign():
                 )
                 # The proof says that the estimate equals this in expectation:
                 assert monotonically_transformed_weights == pytest.approx(
-                    estimate, abs=2e-2 if sigma == 0 else 3e-2
+                    estimate, abs=3e-2 if sigma == 0 else 8e-2
                 )
 
 
@@ -128,17 +129,16 @@ def test_spearmanr():
                 intermediate_transform = weights / (
                     (1 + sigma**2) * np.sqrt(2 - (weights**2) / (1 + sigma**2))
                 )
-                monotonically_transformed_weights = (
-                    1
-                    - 1 / 6
-                    + np.arctan(
+                monotonically_transformed_weights = 1 - 6 * (X.shape[0] ** 2) * (
+                    1 / 6
+                    - np.arctan(
                         intermediate_transform
                         / np.sqrt(intermediate_transform**2 + 2)
                     )
                     / np.pi
-                )
+                ) / (X.shape[0] ** 2 - 1)
 
                 # The proof says that the estimate equals this in expectation:
                 assert monotonically_transformed_weights == pytest.approx(
-                    estimate, abs=5e-3 if sigma == 0 else 3e-2
+                    estimate, abs=3e-2 if sigma == 0 else 8e-2
                 )

@@ -381,11 +381,9 @@ def spearmanr(X, y):
 
     X_ranks = np.argsort(np.argsort(X, axis=0), axis=0) + 1
 
-    X_cdf = X_ranks / X.shape[0]
-
     y_ranks = np.argsort(np.argsort(y, axis=0), axis=0) + 1
 
-    y_cdf = y_ranks / y.shape[0]
-
-    estimate = np.mean(1 - (y_cdf.T - X_cdf.T) ** 2, axis=1)
+    estimate = 1 - 6 * np.sum((y_ranks.T - X_ranks.T) ** 2, axis=1) / (
+        X.shape[0] * (X.shape[0] ** 2 - 1)
+    )
     return estimate
