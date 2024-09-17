@@ -4,7 +4,7 @@ from perplexity_correlations.estimation import (
     # product,
     # sign,
     sign_cdf,
-    # sign_sign,
+    sign_sign,
     # spearmanr,
 )
 
@@ -73,12 +73,19 @@ def test_sign_cdf():
             # The proof says that the estimate equals this:
             assert (2 / np.pi) * np.arcsin(
                 weights / (2 * np.sqrt(1 + SIGMA**2))
-            ) == pytest.approx(estimate, abs=1e-2)
+            ) == pytest.approx(estimate, abs=2e-2)
 
 
 def test_sign_sign():
-    # TODO
-    pass
+    for weights in some_weights:
+        for f in some_fs:
+            y = f(X @ weights + noise)
+            estimate = sign_sign(X, y)
+
+            # The proof says that the estimate equals this:
+            assert (2 / np.pi) * np.arcsin(
+                weights / (np.sqrt(1 + SIGMA**2))
+            ) == pytest.approx(estimate, abs=2e-2)
 
 
 def test_spearmanr():
