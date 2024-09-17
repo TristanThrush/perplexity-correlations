@@ -1,21 +1,21 @@
 import numpy as np
 import pytest
 from perplexity_correlations.estimation import (
-    # product,
-    # sign,
+    product,
+    sign,
     sign_cdf,
     sign_sign,
-    # spearmanr,
+    spearmanr,
 )
 
 # We test with X~N(0, I), and noise~N(0, SIGMA^2),
 # following standard high-dimensional regression assumptions.
 NUM_SAMPLES = 10000
 DIM = 10
-SIGMA = 0.5
+
+some_sigmas = [0, 0.5]
 
 X = np.random.randn(NUM_SAMPLES, DIM)
-noise = np.random.randn(NUM_SAMPLES) * SIGMA
 
 non_negative_weights = np.array(list(range(DIM)))  # weights looks like [0,1,2,3,...]
 non_positive_weights = -np.array(
@@ -55,39 +55,90 @@ some_fs = [linear_f, sigmoid_f, exponential_f]
 
 
 def test_product():
-    # TODO
-    pass
+    for weights in some_weights:
+        for f in some_fs:
+            for sigma in some_sigmas:
+                noise = np.random.randn(NUM_SAMPLES) * sigma
+                y = f(X @ weights + noise)
+                estimate = product(X, y)
+                normalized_estimate = estimate / np.sqrt(np.sum(estimate**2))
+
+                # The proof says that the estimate equals this in expectation:
+                assert weights == pytest.approx(
+                    normalized_estimate, abs=5e-2 if sigma == 0 else 1e-1
+                )
 
 
 def test_sign():
-    # TODO
-    pass
+    for weights in some_weights:
+        for f in some_fs:
+            for sigma in some_sigmas:
+                noise = np.random.randn(NUM_SAMPLES) * sigma
+                y = f(X @ weights + noise)
+                estimate = sign(X, y)
+                normalized_estimate = estimate / np.sqrt(np.sum(estimate**2))
+
+                # The proof says that the estimate equals this in expectation:
+                assert weights == pytest.approx(
+                    normalized_estimate, abs=3e-2 if sigma == 0 else 4e-2
+                )
 
 
 def test_sign_cdf():
     for weights in some_weights:
         for f in some_fs:
-            y = f(X @ weights + noise)
-            estimate = sign_cdf(X, y)
+            for sigma in some_sigmas:
+                noise = np.random.randn(NUM_SAMPLES) * sigma
+                y = f(X @ weights + noise)
+                estimate = sign_cdf(X, y)
 
-            # The proof says that the estimate equals this:
-            assert (2 / np.pi) * np.arcsin(
-                weights / (2 * np.sqrt(1 + SIGMA**2))
-            ) == pytest.approx(estimate, abs=2e-2)
+                monotonically_transformed_weights = (2 / np.pi) * np.arcsin(
+                    weights / (2 * np.sqrt(1 + sigma**2))
+                )
+                # The proof says that the estimate equals this in expectation:
+                assert monotonically_transformed_weights == pytest.approx(
+                    estimate, abs=1e-2 if sigma == 0 else 3e-2
+                )
 
 
 def test_sign_sign():
     for weights in some_weights:
         for f in some_fs:
-            y = f(X @ weights + noise)
-            estimate = sign_sign(X, y)
-
-            # The proof says that the estimate equals this:
-            assert (2 / np.pi) * np.arcsin(
-                weights / (np.sqrt(1 + SIGMA**2))
-            ) == pytest.approx(estimate, abs=2e-2)
+            for sigma in some_sigmas:
+                noise = np.random.randn(NUM_SAMPLES) * sigma
+                y = f(X @ weights + noise)
+                estimate = sign_sign(X, y)
+                monotonically_transformed_weights = (2 / np.pi) * np.arcsin(
+                    weights / (np.sqrt(1 + sigma**2))
+                )
+                # The proof says that the estimate equals this in expectation:
+                assert monotonically_transformed_weights == pytest.approx(
+                    estimate, abs=2e-2 if sigma == 0 else 3e-2
+                )
 
 
 def test_spearmanr():
-    # TODO
-    pass
+    for weights in some_weights:
+        for f in some_fs:
+            for sigma in some_sigmas:
+                noise = np.random.randn(NUM_SAMPLES) * sigma
+                y = f(X @ weights + noise)
+                estimate = spearmanr(X, y)
+
+                intermediate_transform = weights / (
+                    (1 + sigma**2) * np.sqrt(2 - (weights**2) / (1 + sigma**2))
+                )
+                monotonically_transformed_weights = (
+                    1
+                    - 1 / 6
+                    + np.arctan(
+                        intermediate_transform
+                        / np.sqrt(intermediate_transform**2 + 2)
+                    )
+                    / np.pi
+                )
+
+                # The proof says that the estimate equals this in expectation:
+                assert monotonically_transformed_weights == pytest.approx(
+                    estimate, abs=5e-3 if sigma == 0 else 3e-2
+                )
