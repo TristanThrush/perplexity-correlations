@@ -54,15 +54,11 @@ def product(X, y):
 
     Returns
     -------
-    bool
-        True if the function succeeds, False otherwise.
+    numpy.array
+        The D-length vector estimate of w.
 
     Raises
     ------
-    ValueError
-        If values in X are negative.
-    ValueError
-        If values in y are not in [0,1].
     ValueError
         If X is not 2 dimensional.
     ValueError
@@ -78,7 +74,7 @@ def product(X, y):
     >>> y = np.random.uniform(low=0, high=1, size=(100))
     >>>
     >>> # Estimate the weights for the relationship:
-    >>> estimate = product_estimator(X, y)
+    >>> estimate = product(X, y)
     """
     _value_check_X_and_y(X, y)
     estimate = np.mean((y.T * X.T), axis=1)
@@ -121,15 +117,11 @@ def sign(X, y):
 
     Returns
     -------
-    bool
-        True if the function succeeds, False otherwise.
+    numpy.array
+        The D-length vector estimate of w.
 
     Raises
     ------
-    ValueError
-        If values in X are negative.
-    ValueError
-        If values in y are not in [0,1].
     ValueError
         If X is not 2 dimensional.
     ValueError
@@ -145,7 +137,7 @@ def sign(X, y):
     >>> y = np.random.uniform(low=0, high=1, size=(100))
     >>>
     >>> # Estimate the weights for the relationship:
-    >>> estimate = product_estimator(X, y)
+    >>> estimate = sign(X, y)
     """
     _value_check_X_and_y(X, y)
 
@@ -196,15 +188,11 @@ def sign_cdf(X, y):
 
     Returns
     -------
-    bool
-        True if the function succeeds, False otherwise.
+    numpy.array
+        The D-length vector estimate of w.
 
     Raises
     ------
-    ValueError
-        If values in X are negative.
-    ValueError
-        If values in y are not in [0,1].
     ValueError
         If X is not 2 dimensional.
     ValueError
@@ -220,7 +208,7 @@ def sign_cdf(X, y):
     >>> y = np.random.uniform(low=0, high=1, size=(100))
     >>>
     >>> # Estimate the weights for the relationship:
-    >>> estimate = product_estimator(X, y)
+    >>> estimate = sign_cdf(X, y)
     """
     _value_check_X_and_y(X, y)
 
@@ -274,15 +262,11 @@ def sign_sign(X, y):
 
     Returns
     -------
-    bool
-        True if the function succeeds, False otherwise.
+    numpy.array
+        The D-length vector estimate of w.
 
     Raises
     ------
-    ValueError
-        If values in X are negative.
-    ValueError
-        If values in y are not in [0,1].
     ValueError
         If X is not 2 dimensional.
     ValueError
@@ -298,7 +282,7 @@ def sign_sign(X, y):
     >>> y = np.random.uniform(low=0, high=1, size=(100))
     >>>
     >>> # Estimate the weights for the relationship:
-    >>> estimate = product_estimator(X, y)
+    >>> estimate = sign_sign(X, y)
     """
     _value_check_X_and_y(X, y)
 
@@ -337,8 +321,6 @@ def spearmanr(X, y):
     bit-per-byte vector of the k-th LLM, and y_k is the benchmark
     error of the k-th LLM.
 
-    NOTE: This is the Spearman Rank Correlation.
-
     NOTE: This estimator is robust to outliers in X and y.
 
     Parameters
@@ -350,15 +332,11 @@ def spearmanr(X, y):
 
     Returns
     -------
-    bool
-        True if the function succeeds, False otherwise.
+    numpy.array
+        The D-length vector estimate of w.
 
     Raises
     ------
-    ValueError
-        If values in X are negative.
-    ValueError
-        If values in y are not in [0,1].
     ValueError
         If X is not 2 dimensional.
     ValueError
@@ -374,7 +352,7 @@ def spearmanr(X, y):
     >>> y = np.random.uniform(low=0, high=1, size=(100))
     >>>
     >>> # Estimate the weights for the relationship:
-    >>> estimate = spearmanr_estimator(X, y)
+    >>> estimate = spearmanr(X, y)
     """
     _value_check_X_and_y(X, y)
 

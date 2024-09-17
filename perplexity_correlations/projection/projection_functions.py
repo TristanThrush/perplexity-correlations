@@ -1,4 +1,5 @@
 import numpy as np
+import warnings
 
 
 def _value_check_estimate_and_tau(estimate, tau):
@@ -10,7 +11,7 @@ def _value_check_estimate_and_tau(estimate, tau):
         raise ValueError(
             "tau values must be positive.\
 If you want certain tau values to be zero, then\
-run the estimate without those domains."
+run the estimation without those domains."
         )
     if np.sum(tau) < 1:
         raise ValueError("Projection is infeasible because sum of tau values is < 1.")
@@ -18,7 +19,70 @@ run the estimate without those domains."
 
 def linear(estimate, tau):
     """
-    TODO
+    Given the estimate from one of the estimator methods, this method projects
+    it, maximizing the dot product (linear projection) subject to:
+
+    sum(projected_estimate) = 1
+    0 <= projected_estimate[i] <= tau[i]
+
+    It uses the fast projection solution from Thrush et al. (2024):
+    https://arxiv.org/abs/2409.05816
+
+    This projection turns the estimate into a sampling distribution that you could use
+    for training a model on D different domains of text
+    (where len(estimate) == len(tau) == D). tau specifies constraints that prevent you
+    from upsampling a domain of text too much. In Thrush et al., the standard choice
+    for tau[i] is to set it as large as possible such that you won't duplicate data by
+    sampling the i-th domain with weight tau[i].
+
+    NOTE: the solution here is not dependent upon the exact values in the estimate;
+    it only depends on their ranks. This makes it easy to directly use the estimates
+    from estimation.sign_cdf, estimation.sign_sign, and estimation.spearmanr,
+    which compute strictly monotonically increasing trig functions of the optimal
+    weights in expectation. Read more at https://arxiv.org/abs/2409.05816.
+
+    Parameters
+    ----------
+    estimate : numpy.darray
+        A D-length vector returned from one of the perplexity_correlations.estimation
+        methods.
+    tau : numpy.array
+        A D-length vector with the per-domain sampling thresholds.
+
+    Returns
+    -------
+    numpy.array
+        The D-length projected estimate to be used as a pretraining sampling
+        distribution.
+
+    Raises
+    ------
+    ValueError
+        If values in tau sum to less than 1.
+    ValueError
+        If any values in tau are non-positive.
+    ValueError
+        If estimate is not 1 dimensional.
+    ValueError
+        If tau is not 1 dimensional.
+
+
+    Examples
+    --------
+    >>> # Bits-per-byte from 100 LLMs on 20000 text domains:
+    >>> X = np.random.rand(100, 20000)
+    >>>
+    >>> # Benchmark error from the 100 LLMs:
+    >>> y = np.random.uniform(low=0, high=1, size=(100))
+    >>>
+    >>> # Estimate the weights for the relationship:
+    >>> estimate = spearmanr(X, y)
+    >>>
+    >>> # per-domain sampling thresholds
+    >>> # (the sum of this will almost certainly be >= 1)
+    >>> tau = np.random.rand(20000)
+    >>>
+    >>> projected_estimate = linear(estimate, tau)
     """
 
     _value_check_estimate_and_tau(estimate, tau)
@@ -35,8 +99,8 @@ def linear(estimate, tau):
             :find_index
         ]
         if (1 - np.sum(projected_estimate)) > tau_sort[find_index]:
-            print(
-                f"Warning: numerical issues likely caused violation of\
+            warnings.warn(
+                f"numerical issues likely caused slight violation of\
 tau bounds: {1-np.sum(projected_estimate)} > {tau_sort[find_index]}"
             )
         projected_estimate[indices_of_largest_to_smallest[find_index]] = 1 - np.sum(
@@ -47,7 +111,74 @@ tau bounds: {1-np.sum(projected_estimate)} > {tau_sort[find_index]}"
 
 def l2(estimate, tau, atol=1e-12):
     """
-    TODO
+    Given the estimate from one of the estimator methods, this method projects
+    it, minimizing the L_2 norm subject to:
+
+    sum(projected_estimate) = 1
+    0 <= projected_estimate[i] <= tau[i]
+
+    It uses the fast projection solution from Thrush et al. (2024):
+    https://arxiv.org/abs/2409.05816
+
+    This projection turns the estimate into a sampling distribution that you could use
+    for training a model on D different domains of text
+    (where len(estimate) == len(tau) == D). tau specifies constraints that prevent you
+    from upsampling a domain of text too much. In Thrush et al., the standard choice
+    for tau[i] is to set it as large as possible such that you won't duplicate data by
+    sampling the i-th domain with weight tau[i].
+
+    NOTE: unlike projection.linear, the solution here is dependent upon the exact
+    values in the estimate, not just their ranks. To use this projection on estimates
+    from estimation.sign_cdf, estimation.sign_sign, and estimation.spearmanr, you must
+    invert the monotonic trig functions from the solutions to uncover the exact values
+    of the weight estimates, and potentially learn the norm through hyperparameter
+    search. Even after doing this, it is unlikely that you will be able to uncover the
+    true weight values if your LLM bits-per-byte data deviates too much from the
+    Gaussian distribution. Read more at https://arxiv.org/abs/2409.05816.
+
+    Parameters
+    ----------
+    estimate : numpy.darray
+        A D-length vector returned from one of the perplexity_correlations.estimation
+        methods (or monotonically transformed estimate if using one of the robust
+        estimators from Thrush et al.).
+    tau : numpy.array
+        A D-length vector with the per-domain sampling thresholds.
+
+    Returns
+    -------
+    numpy.array
+        The D-length projected estimate to be used as a pretraining sampling
+        distribution.
+
+    Raises
+    ------
+    ValueError
+        If values in tau sum to less than 1.
+    ValueError
+        If any values in tau are non-positive.
+    ValueError
+        If estimate is not 1 dimensional.
+    ValueError
+        If tau is not 1 dimensional.
+
+
+    Examples
+    --------
+    >>> # Bits-per-byte from 100 LLMs on 20000 text domains:
+    >>> X = np.random.rand(100, 20000)
+    >>>
+    >>> # Benchmark error from the 100 LLMs:
+    >>> y = np.random.uniform(low=0, high=1, size=(100))
+    >>>
+    >>> # Estimate the weights for the relationship:
+    >>> estimate = sign(X, y)
+    >>>
+    >>> # per-domain sampling thresholds
+    >>> # (the sum of this will almost certainly be >= 1)
+    >>> tau = np.random.rand(20000)
+    >>>
+    >>> projected_estimate = l2(estimate, tau)
     """
 
     _value_check_estimate_and_tau(estimate, tau)
