@@ -329,14 +329,13 @@ def spearmanr(X, y):
 
     This function uses the single-index model parameter estimator from
     Thrush et al. (2024): https://arxiv.org/abs/2409.05816,
-    which is the U-statistic:
+    which is the elementwise Spearman rank correlation, following:
 
-    1-(CDF(y_k)-CDF(x_k))^2,
+    1-6*(sum_{k=1}^N(Rank(y_k)-Rank(x_k))^2)/(N*(N^2-1)),
 
-    for 1<=k<=N where N is the number of LLMs, x_k is the per-text
-    bit-per-byte vector of the k-th LLM, y_k is the benchmark
-    error of the k-th LLM, and CDF computes the column-wise empirical CDF of
-    the entries in the x vectors.
+    where N is the number of LLMs, x_k is the per-text
+    bit-per-byte vector of the k-th LLM, and y_k is the benchmark
+    error of the k-th LLM.
 
     NOTE: This is the Spearman Rank Correlation.
 
