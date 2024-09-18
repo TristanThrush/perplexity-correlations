@@ -113,9 +113,15 @@ be used to get a nice pretraining sampling distribution.
 
 TODO
 
+
 ## Training a fastText pretraining data filter (optional but reccomended)
 
 TODO
+
+
+## Full API documentation
+
+https://tristanthrush.github.io/perplexity-correlations/
 
 
 ## Development Guidelines
