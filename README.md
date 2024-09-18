@@ -138,17 +138,56 @@ need to pass in an estimate for the optimal weights that is trustworthy up to th
 ranks.
 
 We provide another speedy projection method called
-`perplexity_correlations.projection.l2`, which does depend on the values - it is
+`perplexity_correlations.projection.l2`, which does depend on the values. It is
 best used with estimators such as `perplexity_correlations.projection.product` and 
-`perplexity_correlations.projection.sign` which return vectors that are completely
-proportional to the optimal weights in expectation, but we found that these
-estimators are not robust enough to be particularly useful. Still, nice to have for
-further research.
+`perplexity_correlations.projection.sign` which return vectors that are proportional
+to the optimal weights in expectation, but we found that these estimators are not
+robust enough to be particularly useful. Still, nice to have for further research.
 
 
 ## Training a fastText pretraining data filter (optional but reccomended)
 
-TODO
+Now, we have a sampling distribution that we could use for pretraining a LLM, but only
+on the text domains that we actually included in our estimate. How are we going to
+scale this approach a bit better? The linear projection above has the nice property of
+making the weight for the i-th domain either 0 or the max possible value (don't include
+it at all or include all of it). We can treat these include/don't include judgements as
+labels for each text:
+
+```python
+# Compute the labels
+labels = []
+for weight in projected_estimate:
+    labels.append("include" if weight > 0 else "exclude")
+```
+
+Now we can make a text file where each line is formatted as:
+
+```python
+f'__label__{label} {text}'
+```
+
+Then, we can train a [fastText](https://pypi.org/project/fasttext/) classifier:
+
+```python
+import fasttext
+
+# Train the FastText model
+model = fasttext.train_supervised(input=f'train.txt', wordNgrams=2)
+
+# Evaluate the model
+result = model.test(f'test.txt')
+print(f'Number of samples: {result[0]}')
+print(f'Precision@1: {result[1]}')
+print(f'Recall@1: {result[2]}')
+
+# Save the model
+model.save_model(f'fasttext_filter.bin')
+```
+
+Then, we can apply this fastText model as a filter, choosing pretraining
+data that gets the highest `'include'` scores until we reach our pretraining
+token budget.
 
 
 ## Full API documentation
