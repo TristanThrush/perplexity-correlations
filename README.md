@@ -12,10 +12,11 @@ text that you could use directly to pretrain a strong LLM. Or you could use this
 sampling distribution to train a fastText pretraining data filter that generalizes
 to new pieces of text (reccomended).
 
-Note that the set of LLMs can come from the kitchen sink: they can have different
-tokenizers, architectures, scales, pretraining data. Another essential feature here is
-that the number of texts can be far larger than the number of LLMs; our approach is
-a very high-dimensional regression approach.
+Note that you can use a heterogenous set of LLMs to estimate the pretraining sampling
+distribution: they can have different tokenizers, architectures, scales, and
+pretraining data. Another essential feature here is that the number of texts can be
+far larger than the number of LLMs; our approach is a very high-dimensional regression
+approach.
 
 <div align="center">
   <img src="./assets/perplexity_correlations_diagram.png" alt="Perplexity Correlations diagram" width="400"/>
