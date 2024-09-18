@@ -104,7 +104,7 @@ def linear(estimate, tau):
 tau bounds: {1-np.sum(projected_estimate)} > {tau_sort[find_index]}"
             )
         projected_estimate[indices_of_largest_to_smallest[find_index]] = 1 - np.sum(
-            estimate
+            projected_estimate
         )
     return projected_estimate
 
