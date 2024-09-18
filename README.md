@@ -83,10 +83,9 @@ which are the benchmark errors on some benchmark (or average of benchmarks) that
 you care about. These errors should range from 0 to 1 and lower should mean better.
 
 With these numpy arrays, you can use a variety of estimators that our package provides
-to estimate the optimal text sampling weights relating performance and loss (assuming
+to estimate the optimal weights relating performance and text losses (assuming
 an unknown monotonic relationship between performance and loss, which is more general
-than typical scaling laws which assume a particular form for the monotonic
-relationship like a power law or sigmoid). We reccomend using one of the following
+than typical power-law or sigmoid scaling laws). We recommend using one of the following
 options:
 
 ```python
@@ -103,11 +102,11 @@ from perplexity_correlations.estimation import sign_cdf
 estimate = sign_cdf(bits_per_byte_matrix, benchmark_error_vector)
 ```
 
-Note that these particular options are robust to outliers in the data, but the cost
-is that they only return estimates for the optimal sampling weights that we can trust
-up to the ranks of the values. In other words, the estimate might be TODO where the
-true optimal weights might are [0.2, 0.5, 0.9]. We will see below that the ranks alone
-can still be used to get a nice pretraining sampling distribution.
+Note that these particular estimators are robust to outliers in the data, but the cost
+is that they only return estimates for the optimal weights that we can trust
+up to the ranks. In other words, the estimate might be TODO where the true optimal
+weights are [-0.2, 0.5, 0.9, 2]. We will see below that the ranks alone can still
+be used to get a nice pretraining sampling distribution.
 
 
 ## Projecting the estimate to be a sampling distribution for pretraining
