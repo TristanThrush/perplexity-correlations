@@ -14,3 +14,6 @@ dist/
 
 # Pre-commit hooks
 .pre-commit-config.yaml
+
+# Mac OS
+.DS_store
