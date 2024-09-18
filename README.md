@@ -104,14 +104,45 @@ estimate = sign_cdf(bits_per_byte_matrix, benchmark_error_vector)
 
 Note that these particular estimators are robust to outliers in the data, but the cost
 is that they only return estimates for the optimal weights that we can trust
-up to the ranks. In other words, the estimate might be TODO where the true optimal
-weights are [-0.2, 0.5, 0.9, 2]. We will see below that the ranks alone can still
-be used to get a nice pretraining sampling distribution.
+up to the ranks. In other words, the estimate might be [-0.1, 0.2, 0.35, 0.9] where
+the true optimal weights are [-0.1, 0.28, 0.5, 1.1]. We will see below that the ranks
+alone can still be used to get a nice pretraining sampling distribution.
 
 
 ## Projecting the estimate to be a sampling distribution for pretraining
 
-TODO
+We now have an estimate for a vector with weights that correspond to the ranks of the optimal weight vector. But we still need to project it so that it is a sampling
+distribution that we could use for pretraining. Obviously, it needs to satisfy the
+constraint that the elements should sum to 1. But also, we don't want our algorithm
+to tell you to train on 300 billion tokens of Wikipedia if you only have 3 billion 
+tokens, so we should also have the sampling distribution satisfy a per-text constraint
+that prevents the weights from being so high that you will have to duplicate data
+from any text domains. The following code projects our estimate to satisfy these
+constraints, where tau is the vector of per-domain thresholds:
+
+```python
+from perplexity_correlations.projection import linear
+
+projected_estimate = linear(estimate, tau)
+```
+
+In our paper, we choose the tau values to be as high as possible per-domain such that
+we won't be duplicating data. This works when we have more pretraining data than
+we can train on, but you might want to choose other reasonable thresholds if
+you are using our technique to upsample pretraining data instead of filter it.
+
+Finally, it turns out that the `perplexity_correlations.projection.linear` has the
+nice property of only depending on the ranks of the values in `estimate`, so we only
+need to pass in an estimate for the optimal weights that is trustworthy up to the
+ranks.
+
+We provide another speedy projection method called
+`perplexity_correlations.projection.l2`, which does depend on the values - it is
+best used with estimators such as `perplexity_correlations.projection.product` and 
+`perplexity_correlations.projection.sign` which return vectors that are completely
+proportional to the optimal weights in expectation, but we found that these
+estimators are not robust enough to be particularly useful. Still, nice to have for
+further research.
 
 
 ## Training a fastText pretraining data filter (optional but reccomended)
