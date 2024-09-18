@@ -27,11 +27,20 @@ that you care about. The vector of benchmark errors could be the average from
 many benchmarks if you want.
 
 The output that this package produces is a sampling distribution over pieces of
-text that you could use for pretraining a stronger LLM. Or you could use this
-sampling distribution to train a fastText pretraining data filter so it can
-generalize to new pieces of text (we reccomend this option).
+text that you could use directly to pretrain a strong LLM. Or you could use this
+sampling distribution to train a fastText pretraining data filter that generalizes
+to new pieces of text (reccomended).
 
-<img src="./assets/perplexity_correlations_diagram.png" alt="Perplexity Correlations diagram" width="400"/>
+<div align="center">
+  <img src="./assets/perplexity_correlations_diagram.png" alt="Perplexity Correlations diagram" width="400"/>
+</div>
+
+Essentially, our approach encourages the training on domains where lower loss is
+very correlated with higher downstream performance. We want
+to pretrain on these domains, because pretraining on them will lower loss on them,
+which we would expect to increase downstream performance. There is some deeper
+theory here: https://arxiv.org/abs/2409.05816. Please cite this paper if you
+find this package useful!
 
 ## Getting bits-per-byte from LLM loss, on various pieces of text
 
