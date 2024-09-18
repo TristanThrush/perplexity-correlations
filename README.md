@@ -1,8 +1,6 @@
 # Perplexity Correlations
 A simple and scalable paradigm for great pretraining data selection.
 
-![Perplexity Correlations diagram](./assets/perplexity_correlations_diagram.png)
-
 ## Setup
 
 Via PIP:
@@ -19,11 +17,27 @@ cd perplexity-correlations
 pip install -e .
 ```
 
+## Overview
+
+This package can be used to get great pretraining data sampling distributions.
+
+The input that you must provide is a matrix of (per-LLM, per-text) bits-per-byte
+values, and a per-LLM vector of benchmark errors (1-accuracy) on a benchmark
+that you care about. The vector of benchmark errors could be the average from
+many benchmarks if you want.
+
+The output that this package produces is a sampling distribution over pieces of
+text that you could use for pretraining a stronger LLM. Or you could use this
+sampling distribution to train a fastText pretraining data filter so it can
+generalize to new pieces of text (we reccomend this option).
+
+<img src="./assets/perplexity_correlations_diagram.png" alt="Perplexity Correlations diagram" width="400"/>
+
 ## Getting bits-per-byte from LLM loss, on various pieces of text
 
 TODO
 
-## Estimating optimal per-text weights relating bits-per-byte to benchmark performance
+## Estimating optimal per-text weights
 
 TODO
 
