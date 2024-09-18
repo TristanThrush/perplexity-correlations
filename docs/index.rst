@@ -6,7 +6,10 @@
 Perplexity Correlations documentation
 =====================================
 
-Documentation for every method in perplexity_correlations.
+Here, you will find documentation for every API method in the
+perplexity-correlations pip package.
+See https://github.com/TristanThrush/perplexity-correlations
+for an overview of the package.
 
 .. toctree::
    :maxdepth: 2
