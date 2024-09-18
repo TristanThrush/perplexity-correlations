@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Perplexity Correlations documentation &#8212; Perplexity Correlations 0.1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d1102ebc" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=12dfc556" />
+    <script src="_static/documentation_options.js?v=01f34227"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="perplexity-correlations-documentation">
+<h1>Perplexity Correlations documentation<a class="headerlink" href="#perplexity-correlations-documentation" title="Link to this heading">¶</a></h1>
+<p>Documentation for every method in perplexity_correlations.</p>
+<div class="toctree-wrapper compound">
+</div>
+<dl class="py function" id="module-perplexity_correlations.estimation">
+<dt class="sig sig-object py" id="perplexity_correlations.estimation.product">
+<span class="sig-prename descclassname"><span class="pre">perplexity_correlations.estimation.</span></span><span class="sig-name descname"><span class="pre">product</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#perplexity_correlations.estimation.product" title="Link to this definition">¶</a></dt>
+<dd><p>In expectation, this function returns a vector proportional to
+the optimal weight vector relating the per-LLM benchmark error
+vector (y), and the per-LLM and per-text bits-per-byte matrix (X).
+In addition to standard high-dimensional regression assumptions,
+we assume the relationship between X and y is:</p>
+<p>y = f(&lt;w,X&gt; + e),</p>
+<p>where w is the vector of optimal per-text weights that we want to
+estimate, e is zero-mean error, and f is a monotonically increasing
+function which we do not have to know.</p>
+<p>This function uses the single-index model parameter estimator from
+Plan et al. (2016): <a class="reference external" href="https://arxiv.org/abs/1404.3749">https://arxiv.org/abs/1404.3749</a>, which is the
+U-statistic:</p>
+<p>x_k*y_k,</p>
+<p>for 1&lt;=k&lt;=N where N is the number of LLMs, x_k is the per-text
+bit-per-byte vector of the k-th LLM, and y_k is the benchmark
+error of the k-th LLM.</p>
+<p>NOTE: This estimator is not robust to outliers in X or y.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>X</strong> (<em>numpy.ndarray</em>) – A NxD matrix with bits-per-byte values of N LLMs on D pieces of text.</p></li>
+<li><p><strong>y</strong> (<em>numpy.array</em>) – A N-length vector with the benchmark error (1-accuracy) of the N LLMs.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The D-length vector estimate of w.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>numpy.array</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – If X is not 2 dimensional.</p></li>
+<li><p><strong>ValueError</strong> – If y is not 1 dimensional.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Bits-per-byte from 100 LLMs on 20000 text domains:</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">20000</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Benchmark error from the 100 LLMs:</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="n">low</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">100</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Estimate the weights for the relationship:</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">estimate</span> <span class="o">=</span> <span class="n">product</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="perplexity_correlations.estimation.sign">
+<span class="sig-prename descclassname"><span class="pre">perplexity_correlations.estimation.</span></span><span class="sig-name descname"><span class="pre">sign</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#perplexity_correlations.estimation.sign" title="Link to this definition">¶</a></dt>
+<dd><p>In expectation, this function returns a vector proportional to
+the optimal weight vector relating the per-LLM benchmark error
+vector (y), and the per-LLM and per-text bits-per-byte matrix (X).
+In addition to standard high-dimensional regression assumptions,
+we assume the relationship between X and y is:</p>
+<p>y = f(&lt;w,X&gt; + e),</p>
+<p>where w is the vector of optimal per-text weights that we want to
+estimate, e is zero-mean error, and f is a monotonically increasing
+function which we do not have to know.</p>
+<p>This function uses the single-index model parameter estimator from
+Chen &amp; Banerjee (2017): <a class="reference external" href="https://proceedings.mlr.press/v70/chen17a.html">https://proceedings.mlr.press/v70/chen17a.html</a>,
+which is the U-statistic:</p>
+<p>sign(y_g-y_k)*(x_g-x_k),</p>
+<p>for 1&lt;=k,g&lt;=N where N is the number of LLMs, x_k is the per-text
+bit-per-byte vector of the k-th LLM, and y_k is the benchmark
+error of the k-th LLM.</p>
+<p>NOTE: This estimator is not robust to outliers in X,
+but is robust to outliers in y.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>X</strong> (<em>numpy.ndarray</em>) – A NxD matrix with bits-per-byte values of N LLMs on D pieces of text.</p></li>
+<li><p><strong>y</strong> (<em>numpy.array</em>) – A N-length vector with the benchmark error (1-accuracy) of the N LLMs.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The D-length vector estimate of w.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>numpy.array</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – If X is not 2 dimensional.</p></li>
+<li><p><strong>ValueError</strong> – If y is not 1 dimensional.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Bits-per-byte from 100 LLMs on 20000 text domains:</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">20000</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Benchmark error from the 100 LLMs:</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="n">low</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">100</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Estimate the weights for the relationship:</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">estimate</span> <span class="o">=</span> <span class="n">sign</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="perplexity_correlations.estimation.sign_cdf">
+<span class="sig-prename descclassname"><span class="pre">perplexity_correlations.estimation.</span></span><span class="sig-name descname"><span class="pre">sign_cdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#perplexity_correlations.estimation.sign_cdf" title="Link to this definition">¶</a></dt>
+<dd><p>In expectation, this function returns a vector of values with the same
+relative ranks as the values in the optimal weight vector relating
+the per-LLM benchmark error vector (y), and the per-LLM and per-text
+bits-per-byte matrix (X). In addition to standard high-dimensional
+regression assumptions, we assume the relationship between X and y is:</p>
+<p>y = f(&lt;w,X&gt; + e),</p>
+<p>where w is the vector of optimal per-text weights that we want to
+estimate, e is zero-mean error, and f is a monotonically increasing
+function which we do not have to know.</p>
+<p>This function uses the single-index model parameter estimator from
+Thrush et al. (2024): <a class="reference external" href="https://arxiv.org/abs/2409.05816">https://arxiv.org/abs/2409.05816</a>,
+which is the U-statistic:</p>
+<p>sign(y_g-y_k)*(CDF(x_g)-CDF(x_k)),</p>
+<p>for 1&lt;=k,g&lt;=N where N is the number of LLMs, x_k is the per-text
+bit-per-byte vector of the k-th LLM, y_k is the benchmark
+error of the k-th LLM, and CDF computes the column-wise empirical CDF of
+the entries in the x vectors.</p>
+<p>NOTE: This estimator is robust to outliers in X and y.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>X</strong> (<em>numpy.ndarray</em>) – A NxD matrix with bits-per-byte values of N LLMs on D pieces of text.</p></li>
+<li><p><strong>y</strong> (<em>numpy.array</em>) – A N-length vector with the benchmark error (1-accuracy) of the N LLMs.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The D-length vector estimate of w.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>numpy.array</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – If X is not 2 dimensional.</p></li>
+<li><p><strong>ValueError</strong> – If y is not 1 dimensional.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Bits-per-byte from 100 LLMs on 20000 text domains:</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">20000</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Benchmark error from the 100 LLMs:</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="n">low</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">100</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Estimate the weights for the relationship:</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">estimate</span> <span class="o">=</span> <span class="n">sign_cdf</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="perplexity_correlations.estimation.sign_sign">
+<span class="sig-prename descclassname"><span class="pre">perplexity_correlations.estimation.</span></span><span class="sig-name descname"><span class="pre">sign_sign</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#perplexity_correlations.estimation.sign_sign" title="Link to this definition">¶</a></dt>
+<dd><p>In expectation, this function returns a vector of values with the same
+relative ranks as the values in the optimal weight vector relating
+the per-LLM benchmark error vector (y), and the per-LLM and per-text
+bits-per-byte matrix (X). In addition to standard high-dimensional
+regression assumptions, we assume the relationship between X and y is:</p>
+<p>y = f(&lt;w,X&gt; + e),</p>
+<p>where w is the vector of optimal per-text weights that we want to
+estimate, e is zero-mean error, and f is a monotonically increasing
+function which we do not have to know.</p>
+<p>This function uses the single-index model parameter estimator from
+Thrush et al. (2024): <a class="reference external" href="https://arxiv.org/abs/2409.05816">https://arxiv.org/abs/2409.05816</a>,
+which is the U-statistic:</p>
+<p>sign(y_g-y_k)*sign(x_g-x_k),</p>
+<p>for 1&lt;=k,g&lt;=N where N is the number of LLMs, x_k is the per-text
+bit-per-byte vector of the k-th LLM, y_k is the benchmark
+error of the k-th LLM.</p>
+<p>NOTE: This estimator is robust to outliers in X and y.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>X</strong> (<em>numpy.ndarray</em>) – A NxD matrix with bits-per-byte values of N LLMs on D pieces of text.</p></li>
+<li><p><strong>y</strong> (<em>numpy.array</em>) – A N-length vector with the benchmark error (1-accuracy) of the N LLMs.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The D-length vector estimate of w.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>numpy.array</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – If X is not 2 dimensional.</p></li>
+<li><p><strong>ValueError</strong> – If y is not 1 dimensional.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Bits-per-byte from 100 LLMs on 20000 text domains:</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">20000</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Benchmark error from the 100 LLMs:</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="n">low</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">100</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Estimate the weights for the relationship:</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">estimate</span> <span class="o">=</span> <span class="n">sign_sign</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="perplexity_correlations.estimation.spearmanr">
+<span class="sig-prename descclassname"><span class="pre">perplexity_correlations.estimation.</span></span><span class="sig-name descname"><span class="pre">spearmanr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#perplexity_correlations.estimation.spearmanr" title="Link to this definition">¶</a></dt>
+<dd><p>In expectation, this function returns a vector of values with the same
+relative ranks as the values in the optimal weight vector relating
+the per-LLM benchmark error vector (y), and the per-LLM and per-text
+bits-per-byte matrix (X). In addition to standard high-dimensional
+regression assumptions, we assume the relationship between X and y is:</p>
+<p>y = f(&lt;w,X&gt; + e),</p>
+<p>where w is the vector of optimal per-text weights that we want to
+estimate, e is zero-mean error, and f is a monotonically increasing
+function which we do not have to know.</p>
+<p>This function uses the single-index model parameter estimator from
+Thrush et al. (2024): <a class="reference external" href="https://arxiv.org/abs/2409.05816">https://arxiv.org/abs/2409.05816</a>,
+which is the elementwise Spearman rank correlation, following:</p>
+<p>1-6*(sum_{k=1}^N(Rank(y_k)-Rank(x_k))^2)/(N*(N^2-1)),</p>
+<p>where N is the number of LLMs, x_k is the per-text
+bit-per-byte vector of the k-th LLM, and y_k is the benchmark
+error of the k-th LLM.</p>
+<p>NOTE: This estimator is robust to outliers in X and y.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>X</strong> (<em>numpy.ndarray</em>) – A NxD matrix with bits-per-byte values of N LLMs on D pieces of text.</p></li>
+<li><p><strong>y</strong> (<em>numpy.array</em>) – A N-length vector with the benchmark error (1-accuracy) of the N LLMs.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The D-length vector estimate of w.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>numpy.array</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – If X is not 2 dimensional.</p></li>
+<li><p><strong>ValueError</strong> – If y is not 1 dimensional.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Bits-per-byte from 100 LLMs on 20000 text domains:</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">20000</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Benchmark error from the 100 LLMs:</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="n">low</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">100</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Estimate the weights for the relationship:</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">estimate</span> <span class="o">=</span> <span class="n">spearmanr</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function" id="module-perplexity_correlations.projection">
+<dt class="sig sig-object py" id="perplexity_correlations.projection.l2">
+<span class="sig-prename descclassname"><span class="pre">perplexity_correlations.projection.</span></span><span class="sig-name descname"><span class="pre">l2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">estimate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-12</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#perplexity_correlations.projection.l2" title="Link to this definition">¶</a></dt>
+<dd><p>Given the estimate from one of the estimator methods, this method projects
+it, minimizing the L_2 norm subject to:</p>
+<p>sum(projected_estimate) = 1
+0 &lt;= projected_estimate[i] &lt;= tau[i]</p>
+<p>It uses the fast projection solution from Thrush et al. (2024):
+<a class="reference external" href="https://arxiv.org/abs/2409.05816">https://arxiv.org/abs/2409.05816</a></p>
+<p>This projection turns the estimate into a sampling distribution that you could use
+for training a model on D different domains of text
+(where len(estimate) == len(tau) == D). tau specifies constraints that prevent you
+from upsampling a domain of text too much. In Thrush et al., the standard choice
+for tau[i] is to set it as large as possible such that you won’t duplicate data by
+sampling the i-th domain with weight tau[i].</p>
+<p>NOTE: unlike projection.linear, the solution here is dependent upon the exact
+values in the estimate, not just their ranks. To use this projection on estimates
+from estimation.sign_cdf, estimation.sign_sign, and estimation.spearmanr, you must
+invert the monotonic trig functions from the solutions to uncover the exact values
+of the weight estimates, and potentially learn the norm through hyperparameter
+search. Even after doing this, it is unlikely that you will be able to uncover the
+true weight values if your LLM bits-per-byte data deviates too much from the
+Gaussian distribution. Read more at <a class="reference external" href="https://arxiv.org/abs/2409.05816">https://arxiv.org/abs/2409.05816</a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>estimate</strong> (<em>numpy.darray</em>) – A D-length vector returned from one of the perplexity_correlations.estimation
+methods (or monotonically transformed estimate if using one of the robust
+estimators from Thrush et al.).</p></li>
+<li><p><strong>tau</strong> (<em>numpy.array</em>) – A D-length vector with the per-domain sampling thresholds.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The D-length projected estimate to be used as a pretraining sampling
+distribution.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>numpy.array</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – If values in tau sum to less than 1.</p></li>
+<li><p><strong>ValueError</strong> – If any values in tau are non-positive.</p></li>
+<li><p><strong>ValueError</strong> – If estimate is not 1 dimensional.</p></li>
+<li><p><strong>ValueError</strong> – If tau is not 1 dimensional.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Bits-per-byte from 100 LLMs on 20000 text domains:</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">20000</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Benchmark error from the 100 LLMs:</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="n">low</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">100</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Estimate the weights for the relationship:</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">estimate</span> <span class="o">=</span> <span class="n">sign</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># per-domain sampling thresholds</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># (the sum of this will almost certainly be &gt;= 1)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tau</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">20000</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">projected_estimate</span> <span class="o">=</span> <span class="n">l2</span><span class="p">(</span><span class="n">estimate</span><span class="p">,</span> <span class="n">tau</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="perplexity_correlations.projection.linear">
+<span class="sig-prename descclassname"><span class="pre">perplexity_correlations.projection.</span></span><span class="sig-name descname"><span class="pre">linear</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">estimate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#perplexity_correlations.projection.linear" title="Link to this definition">¶</a></dt>
+<dd><p>Given the estimate from one of the estimator methods, this method projects
+it, maximizing the dot product (linear projection) subject to:</p>
+<p>sum(projected_estimate) = 1
+0 &lt;= projected_estimate[i] &lt;= tau[i]</p>
+<p>It uses the fast projection solution from Thrush et al. (2024):
+<a class="reference external" href="https://arxiv.org/abs/2409.05816">https://arxiv.org/abs/2409.05816</a></p>
+<p>This projection turns the estimate into a sampling distribution that you could use
+for training a model on D different domains of text
+(where len(estimate) == len(tau) == D). tau specifies constraints that prevent you
+from upsampling a domain of text too much. In Thrush et al., the standard choice
+for tau[i] is to set it as large as possible such that you won’t duplicate data by
+sampling the i-th domain with weight tau[i].</p>
+<p>NOTE: the solution here is not dependent upon the exact values in the estimate;
+it only depends on their ranks. This makes it easy to directly use the estimates
+from estimation.sign_cdf, estimation.sign_sign, and estimation.spearmanr,
+which compute strictly monotonically increasing trig functions of the optimal
+weights in expectation. Read more at <a class="reference external" href="https://arxiv.org/abs/2409.05816">https://arxiv.org/abs/2409.05816</a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>estimate</strong> (<em>numpy.darray</em>) – A D-length vector returned from one of the perplexity_correlations.estimation
+methods.</p></li>
+<li><p><strong>tau</strong> (<em>numpy.array</em>) – A D-length vector with the per-domain sampling thresholds.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The D-length projected estimate to be used as a pretraining sampling
+distribution.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>numpy.array</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – If values in tau sum to less than 1.</p></li>
+<li><p><strong>ValueError</strong> – If any values in tau are non-positive.</p></li>
+<li><p><strong>ValueError</strong> – If estimate is not 1 dimensional.</p></li>
+<li><p><strong>ValueError</strong> – If tau is not 1 dimensional.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Bits-per-byte from 100 LLMs on 20000 text domains:</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">20000</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Benchmark error from the 100 LLMs:</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="n">low</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">100</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Estimate the weights for the relationship:</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">estimate</span> <span class="o">=</span> <span class="n">spearmanr</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># per-domain sampling thresholds</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># (the sum of this will almost certainly be &gt;= 1)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tau</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">20000</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">projected_estimate</span> <span class="o">=</span> <span class="n">linear</span><span class="p">(</span><span class="n">estimate</span><span class="p">,</span> <span class="n">tau</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="#">Perplexity Correlations</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="#">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2024, Tristan Thrush.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 7.4.7</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+      |
+      <a href="_sources/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

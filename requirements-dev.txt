@@ -2,3 +2,6 @@ flake8>=6.0.0
 pre-commit
 black
 pytest>=7.0.0
+sphinx
+sphinx-rtd-theme
+sphinx-autodoc-typehints

@@ -147,7 +147,7 @@ GitHub actions. Just run `pytest` locally to see if your tests pass.
       title={Improving Pretraining Data Using Perplexity Correlations}, 
       author={Tristan Thrush and Christopher Potts and Tatsunori Hashimoto},
       year={2024},
-      eprint={2409.05816},p
+      eprint={2409.05816},
       archivePrefix={arXiv},
       primaryClass={cs.CL},
       url={https://arxiv.org/abs/2409.05816}, 
