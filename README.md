@@ -179,16 +179,16 @@ Then, we can train a [fastText](https://pypi.org/project/fasttext/) classifier:
 import fasttext
 
 # Train the FastText model
-model = fasttext.train_supervised(input=f'train.txt', wordNgrams=2)
+model = fasttext.train_supervised(input='train.txt', wordNgrams=2)
 
 # Evaluate the model
-result = model.test(f'test.txt')
+result = model.test('test.txt')
 print(f'Number of samples: {result[0]}')
 print(f'Precision@1: {result[1]}')
 print(f'Recall@1: {result[2]}')
 
 # Save the model
-model.save_model(f'fasttext_filter.bin')
+model.save_model('fasttext_filter.bin')
 ```
 
 Then, we can apply this fastText model as a filter, choosing pretraining
