@@ -148,6 +148,10 @@ def l2(estimate, tau, atol=1e-12):
         estimators from Thrush et al.).
     tau : numpy.array
         A D-length vector with the per-domain sampling thresholds.
+    atol : float, optional
+        Allowable margin of error for each projected weight. Smaller values will make
+        the bisection search take longer. Default is 1e-12.
+
 
     Returns
     -------
