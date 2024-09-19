@@ -212,8 +212,8 @@ regression assumptions, we assume the relationship between X and y is:</p>
 estimate, e is zero-mean error, and f is a monotonically increasing
 function which we do not have to know.</p>
 <p>This function uses the single-index model parameter estimator from
-Thrush et al. (2024): <a class="reference external" href="https://arxiv.org/abs/2409.05816">https://arxiv.org/abs/2409.05816</a>,
-which is the U-statistic:</p>
+Thrush et al.’s (2024) (<a class="reference external" href="https://arxiv.org/abs/2409.05816">https://arxiv.org/abs/2409.05816</a>) initial experiments,
+although the preprint does not document it yet. It is the U-statistic:</p>
 <p>sign(y_g-y_k)*sign(x_g-x_k),</p>
 <p>for 1&lt;=k,g&lt;=N where N is the number of LLMs, x_k is the per-text
 bit-per-byte vector of the k-th LLM, y_k is the benchmark
@@ -272,6 +272,9 @@ which is the elementwise Spearman rank correlation, following:</p>
 bit-per-byte vector of the k-th LLM, and y_k is the benchmark
 error of the k-th LLM.</p>
 <p>NOTE: This estimator is robust to outliers in X and y.</p>
+<p>NOTE: The current version of the Thrush et al. paper does not provide the proof
+that this estimator matches the ranks of the optimal weights in expectation,
+but we have now proved this.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
