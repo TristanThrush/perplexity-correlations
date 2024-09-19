@@ -1,6 +1,7 @@
 # Perplexity Correlations
 
-This package can be used to get great pretraining data sampling distributions.
+This package can be used to get LLM pretraining data sampling distributions using
+simple statistical methods that are on par with the state of the art in our tests.
 
 The input that you must provide is a matrix of (per-LLM, per-text) bits-per-byte
 values, and a per-LLM vector of benchmark errors (ranging from 0 to 1, with lower
