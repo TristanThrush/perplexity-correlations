@@ -77,11 +77,11 @@ bits_per_byte = (num_tokens/num_bytes)*loss/np.log(2)
 
 ## Estimating optimal per-text weights
 
-Once you have the bits-per-byte values from a bunch of LLMs on a bunch of texts that
-you care about, you can organize these values into a NxD numpy ndarray 
-(N=number of LLMs, D=number of texts). You also need to get a N-length numpy array
-which are the benchmark errors on some benchmark (or average of benchmarks) that
-you care about. These errors should range from 0 to 1 and lower should mean better.
+Once you have the bits-per-byte values from many LLMs on a bunch of texts, you
+can organize these values into a NxD numpy ndarray (N=number of LLMs, D=number of
+texts). You also need to get a N-length numpy array of LLM benchmark errors on some
+benchmark (or average of benchmarks). These errors should range from 0 to 1, and lower
+should mean better.
 
 With these numpy arrays, you can use a variety of estimators that our package provides
 to estimate the optimal weights relating performance and text losses (assuming
