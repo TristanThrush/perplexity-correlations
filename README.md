@@ -132,7 +132,7 @@ from perplexity_correlations.projection import linear
 projected_estimate = linear(estimate, tau)
 ```
 
-In our paper, we choose the tau values to be as high as possible per-domain such that
+In our paper, we choose the `tau` values to be as high as possible per-domain such that
 we won't be duplicating data. This works when we have more pretraining data than
 we can train on, but you might want to choose other reasonable thresholds if
 you are using our technique to upsample pretraining data instead of filter it.
@@ -147,7 +147,8 @@ We provide another speedy projection method called
 best used with estimators such as `perplexity_correlations.estimation.product` and 
 `perplexity_correlations.estimation.sign` which return estimates that are proportional
 to the optimal weights in expectation, but we found that these estimators are not
-robust enough to be particularly useful. Still, nice to have for further research.
+robust enough to be particularly useful. Still, they are nice to have for further
+research.
 
 
 ## Training a fastText pretraining data filter
