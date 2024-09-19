@@ -119,12 +119,12 @@ alone can still be used to get a nice pretraining sampling distribution.
 We now have an estimate for a vector with weights that correspond with the ranks of
 the optimal weight vector. But we still need to project it so that it is a sampling
 distribution that we could use for pretraining. Obviously, it needs to satisfy the
-constraint that the elements should sum to 1. But also, we don't want our algorithm
-to tell you to train on 300 billion tokens of Wikipedia if you only have 3 billion 
-tokens, so we should also have the sampling distribution satisfy a per-text constraint
-that prevents the weights from being so high that you will have to duplicate data
-from any text domains. The following code projects our estimate to satisfy these
-constraints, where tau is the vector of per-domain thresholds:
+constraint that the elements should be non-negative and sum to 1. But also, we don't
+want our algorithm to tell you to train on 300 billion tokens of Wikipedia if you only
+have 3 billion tokens, so we should also have the sampling distribution satisfy a
+per-text constraint that prevents the weights from being so high that you will have to
+duplicate data from any text domains. The following code projects our estimate to
+satisfy these constraints, where tau is the vector of per-domain thresholds:
 
 ```python
 from perplexity_correlations.projection import linear
