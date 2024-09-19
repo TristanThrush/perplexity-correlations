@@ -9,7 +9,7 @@ Essentially, our approach encourages training on domains where lower loss is
 very correlated with higher downstream performance. We can use existing and freely available LLMs to do this:
 
 <div align="center">
-  <img src="./assets/perplexity_correlations_diagram.png" alt="Perplexity Correlations diagram" width="400"/>
+  <img src="https://github.com/TristanThrush/perplexity-correlations/blob/main/assets/perplexity_correlations_diagram.png" alt="Perplexity Correlations diagram" width="400"/>
 </div>
 
 We want to pretrain on these correlated domains, because pretraining on them will
