@@ -27,7 +27,7 @@ and you could use it directly to pretrain a strong LLM. Or you could use this
 sampling distribution to train a fastText pretraining data filter that generalizes
 to new pieces of text (reccomended).
 
-Note that you can use a heterogenous set of LLMs to estimate the pretraining sampling
+Note that you can use a heterogenous set of LLMs to get the pretraining sampling
 distribution: they can have different tokenizers, architectures, scales, and
 pretraining data. Another essential feature here is that the number of texts can be
 far larger than the number of LLMs; this package uses very high-dimensional regression
