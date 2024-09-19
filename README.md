@@ -145,7 +145,7 @@ to the optimal weights in expectation, but we found that these estimators are no
 robust enough to be particularly useful. Still, nice to have for further research.
 
 
-## Training a fastText pretraining data filter (optional but reccomended)
+## Training a fastText pretraining data filter
 
 Now, we have a sampling distribution that we could use for pretraining a LLM, but only
 on the text domains that we actually included in our estimate. How are we going to
