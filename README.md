@@ -116,7 +116,8 @@ alone can still be used to get a nice pretraining sampling distribution.
 
 ## Projecting the estimate to be a sampling distribution for pretraining
 
-We now have an estimate for a vector with weights that correspond to the ranks of the optimal weight vector. But we still need to project it so that it is a sampling
+We now have an estimate for a vector with weights that correspond with the ranks of
+the optimal weight vector. But we still need to project it so that it is a sampling
 distribution that we could use for pretraining. Obviously, it needs to satisfy the
 constraint that the elements should sum to 1. But also, we don't want our algorithm
 to tell you to train on 300 billion tokens of Wikipedia if you only have 3 billion 
