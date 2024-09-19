@@ -8,8 +8,8 @@ values, and a per-LLM vector of benchmark errors (ranging from 0 to 1, with lowe
 meaning better) on a benchmark that you care about. The vector of benchmark errors
 could be the average from many benchmarks if you want.
 
-The output that this package produces is a sampling distribution over pieces of
-text that you could use directly to pretrain a strong LLM. Or you could use this
+The output that this package produces is a sampling distribution over the texts,
+and you could use it directly to pretrain a strong LLM. Or you could use this
 sampling distribution to train a fastText pretraining data filter that generalizes
 to new pieces of text (reccomended).
 
