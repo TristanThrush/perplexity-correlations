@@ -144,8 +144,8 @@ ranks.
 
 We provide another speedy projection method called
 `perplexity_correlations.projection.l2`, which does depend on the values. It is
-best used with estimators such as `perplexity_correlations.projection.product` and 
-`perplexity_correlations.projection.sign` which return vectors that are proportional
+best used with estimators such as `perplexity_correlations.estimation.product` and 
+`perplexity_correlations.estimation.sign` which return estimates that are proportional
 to the optimal weights in expectation, but we found that these estimators are not
 robust enough to be particularly useful. Still, nice to have for further research.
 
