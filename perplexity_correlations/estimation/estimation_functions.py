@@ -67,6 +67,9 @@ def product(X, y):
 
     Examples
     --------
+    >>> import numpy as np
+    >>> from perplexity_correlations.estimation import product
+    >>>
     >>> # Bits-per-byte from 100 LLMs on 20000 text domains:
     >>> X = np.random.rand(100, 20000)
     >>>
@@ -130,6 +133,9 @@ def sign(X, y):
 
     Examples
     --------
+    >>> import numpy as np
+    >>> from perplexity_correlations.estimation import sign
+    >>>
     >>> # Bits-per-byte from 100 LLMs on 20000 text domains:
     >>> X = np.random.rand(100, 20000)
     >>>
@@ -201,6 +207,9 @@ def sign_cdf(X, y):
 
     Examples
     --------
+    >>> import numpy as np
+    >>> from perplexity_correlations.estimation import sign_cdf
+    >>>
     >>> # Bits-per-byte from 100 LLMs on 20000 text domains:
     >>> X = np.random.rand(100, 20000)
     >>>
@@ -275,6 +284,9 @@ def sign_sign(X, y):
 
     Examples
     --------
+    >>> import numpy as np
+    >>> from perplexity_correlations.estimation import sign_sign
+    >>>
     >>> # Bits-per-byte from 100 LLMs on 20000 text domains:
     >>> X = np.random.rand(100, 20000)
     >>>
@@ -349,6 +361,9 @@ def spearmanr(X, y):
 
     Examples
     --------
+    >>> import numpy as np
+    >>> from perplexity_correlations.estimation import spearmanr
+    >>>
     >>> # Bits-per-byte from 100 LLMs on 20000 text domains:
     >>> X = np.random.rand(100, 20000)
     >>>

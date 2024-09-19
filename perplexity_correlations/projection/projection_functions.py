@@ -69,6 +69,10 @@ def linear(estimate, tau):
 
     Examples
     --------
+    >>> import numpy as np
+    >>> from perplexity_correlations.estimation import spearmanr
+    >>> from perplexity_correlations.projection import linear
+    >>>
     >>> # Bits-per-byte from 100 LLMs on 20000 text domains:
     >>> X = np.random.rand(100, 20000)
     >>>
@@ -165,6 +169,10 @@ def l2(estimate, tau, atol=1e-12):
 
     Examples
     --------
+    >>> import numpy as np
+    >>> from perplexity_correlations.estimation import sign
+    >>> from perplexity_correlations.projection import l2
+    >>>
     >>> # Bits-per-byte from 100 LLMs on 20000 text domains:
     >>> X = np.random.rand(100, 20000)
     >>>
