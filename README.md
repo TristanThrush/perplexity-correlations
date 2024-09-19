@@ -2,6 +2,8 @@
 
 This package can be used to get LLM pretraining data sampling distributions using
 simple statistical methods that are on par with the state of the art in our tests.
+The compute requirements are minimal. You don't need to train any LLMs
+yourself.
 
 The input that you must provide is a matrix of (per-LLM, per-text) bits-per-byte
 values, and a per-LLM vector of benchmark errors (ranging from 0 to 1, with lower
@@ -16,8 +18,8 @@ to new pieces of text (reccomended).
 Note that you can use a heterogenous set of LLMs to estimate the pretraining sampling
 distribution: they can have different tokenizers, architectures, scales, and
 pretraining data. Another essential feature here is that the number of texts can be
-far larger than the number of LLMs; our approach is a very high-dimensional regression
-approach.
+far larger than the number of LLMs; the package uses very high-dimensional regression
+methods:
 
 <div align="center">
   <img src="./assets/perplexity_correlations_diagram.png" alt="Perplexity Correlations diagram" width="400"/>
