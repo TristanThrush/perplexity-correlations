@@ -30,7 +30,7 @@ to new pieces of text (reccomended).
 Note that you can use a heterogenous set of LLMs to estimate the pretraining sampling
 distribution: they can have different tokenizers, architectures, scales, and
 pretraining data. Another essential feature here is that the number of texts can be
-far larger than the number of LLMs; the package uses very high-dimensional regression
+far larger than the number of LLMs; this package uses very high-dimensional regression
 methods.
 
 ## Setup
