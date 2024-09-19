@@ -124,7 +124,7 @@ want our algorithm to tell you to train on 300 billion tokens of Wikipedia if yo
 have 3 billion tokens, so we should also have the sampling distribution satisfy a
 per-text constraint that prevents the weights from being so high that you will have to
 duplicate data from any text domains. The following code projects our estimate to
-satisfy these constraints, where tau is the vector of per-domain thresholds:
+satisfy these constraints, where `tau` is the vector of per-domain thresholds:
 
 ```python
 from perplexity_correlations.projection import linear
@@ -161,7 +161,6 @@ it at all or include all of it). We can treat these include/don't include judgem
 labels for each text:
 
 ```python
-# Compute the labels
 labels = []
 for weight in projected_estimate:
     labels.append("include" if weight > 0 else "exclude")
@@ -201,7 +200,7 @@ token budget.
 https://tristanthrush.github.io/perplexity-correlations/
 
 
-## Development Guidelines
+## Development guidelines
 
 Install the dev requirements and pre-commit hooks:
 
@@ -210,7 +209,7 @@ pip install -r requirements-dev.txt
 pre-commit install
 ```
 
-### Formatting and Linting
+### Formatting and linting
 
 This project uses [Black](https://black.readthedocs.io/en/stable/) for code formatting
 and [Flake8](https://flake8.pycqa.org/en/latest/) for linting. After installing the

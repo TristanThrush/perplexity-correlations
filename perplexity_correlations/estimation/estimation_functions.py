@@ -242,8 +242,8 @@ def sign_sign(X, y):
     function which we do not have to know.
 
     This function uses the single-index model parameter estimator from
-    Thrush et al. (2024): https://arxiv.org/abs/2409.05816,
-    which is the U-statistic:
+    Thrush et al.'s (2024) (https://arxiv.org/abs/2409.05816) initial experiments,
+    although the preprint does not document it yet. It is the U-statistic:
 
     sign(y_g-y_k)*sign(x_g-x_k),
 
@@ -322,6 +322,10 @@ def spearmanr(X, y):
     error of the k-th LLM.
 
     NOTE: This estimator is robust to outliers in X and y.
+
+    NOTE: The current version of the Thrush et al. paper does not provide the proof
+    that this estimator matches the ranks of the optimal weights in expectation,
+    but we have now proved this.
 
     Parameters
     ----------
