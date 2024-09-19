@@ -5,12 +5,24 @@ simple statistical methods that are on par with the state of the art in our test
 The compute requirements are minimal. You don't need to train any LLMs
 yourself.
 
+Essentially, our approach encourages training on domains where lower loss is
+very correlated with higher downstream performance. We can use existing and freely available LLMs to do this:
+
+<div align="center">
+  <img src="./assets/perplexity_correlations_diagram.png" alt="Perplexity Correlations diagram" width="400"/>
+</div>
+
+We want to pretrain on these correlated domains, because pretraining on them will
+lower loss on them, which we would expect to increase downstream performance. There
+is some deeper theory here: https://arxiv.org/abs/2409.05816. Please cite this paper
+if you find this package useful!
+
 The input that you must provide is a matrix of (per-LLM, per-text) bits-per-byte
 values, and a per-LLM vector of benchmark errors (ranging from 0 to 1, with lower
 meaning better) on a benchmark that you care about. The vector of benchmark errors
 could be the average from many benchmarks if you want.
 
-The output that this package produces is a sampling distribution over the texts,
+The output that our methods produce is a sampling distribution over the texts,
 and you could use it directly to pretrain a strong LLM. Or you could use this
 sampling distribution to train a fastText pretraining data filter that generalizes
 to new pieces of text (reccomended).
@@ -19,18 +31,7 @@ Note that you can use a heterogenous set of LLMs to estimate the pretraining sam
 distribution: they can have different tokenizers, architectures, scales, and
 pretraining data. Another essential feature here is that the number of texts can be
 far larger than the number of LLMs; the package uses very high-dimensional regression
-methods:
-
-<div align="center">
-  <img src="./assets/perplexity_correlations_diagram.png" alt="Perplexity Correlations diagram" width="400"/>
-</div>
-
-Essentially, our approach encourages the training on domains where lower loss is
-very correlated with higher downstream performance. We want
-to pretrain on these domains, because pretraining on them will lower loss on them,
-which we would expect to increase downstream performance. There is some deeper
-theory here: https://arxiv.org/abs/2409.05816. Please cite this paper if you
-find this package useful!
+methods.
 
 ## Setup
 
