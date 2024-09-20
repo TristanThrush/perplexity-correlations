@@ -19,7 +19,7 @@ run the estimation without those domains."
 
 def linear(estimate, tau):
     """
-    Given a real valued vector ('estimate'), and a positive real-valued vector 'tau',
+    Given a real-valued vector 'estimate', and a positive real-valued vector 'tau',
     this method projects 'estimate', maximizing the dot product (linear projection)
     subject to:
 
@@ -117,7 +117,7 @@ tau bounds: {1-np.sum(projected_estimate)} > {tau_sort[find_index]}"
 
 def l2(estimate, tau, atol=1e-12):
     """
-    Given a real-valued vector ('estimate'), and a positive real-valued vector 'tau',
+    Given a real-valued vector 'estimate', and a positive real-valued vector 'tau',
     this method projects 'estimate', minimizing the L_2 norm subject to:
 
     sum(projected_estimate) = 1
