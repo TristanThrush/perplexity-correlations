@@ -24,7 +24,7 @@ def linear(estimate, tau):
 
     sum(projected_estimate) = 1
 
-    0 <= projected_estimate[i] <= tau[i]
+    0 <= projected_estimate[i] <= tau[i], for all i
 
     It uses the fast projection solution from Thrush et al. (2024):
     https://arxiv.org/abs/2409.05816
@@ -121,7 +121,7 @@ def l2(estimate, tau, atol=1e-12):
 
     sum(projected_estimate) = 1
 
-    0 <= projected_estimate[i] <= tau[i]
+    0 <= projected_estimate[i] <= tau[i], for all i
 
     It uses the fast projection solution from Thrush et al. (2024):
     https://arxiv.org/abs/2409.05816
