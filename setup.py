@@ -24,7 +24,8 @@ setup(
     },
     author="Tristan Thrush",
     author_email="tthrush@stanford.edu",
-    description="Simple and scalable tools for great pretraining data selection.",
+    description="Simple and scalable statistical tools for pretraining data\
+selection.",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/TristanThrush/perplexity-correlations",

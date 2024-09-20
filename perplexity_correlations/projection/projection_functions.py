@@ -23,6 +23,7 @@ def linear(estimate, tau):
     it, maximizing the dot product (linear projection) subject to:
 
     sum(projected_estimate) = 1
+
     0 <= projected_estimate[i] <= tau[i]
 
     It uses the fast projection solution from Thrush et al. (2024):
@@ -119,6 +120,7 @@ def l2(estimate, tau, atol=1e-12):
     it, minimizing the L_2 norm subject to:
 
     sum(projected_estimate) = 1
+
     0 <= projected_estimate[i] <= tau[i]
 
     It uses the fast projection solution from Thrush et al. (2024):
