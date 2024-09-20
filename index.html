@@ -326,7 +326,7 @@ but we have now proved this.</p>
 <dl class="py function" id="module-perplexity_correlations.projection">
 <dt class="sig sig-object py" id="perplexity_correlations.projection.l2">
 <span class="sig-prename descclassname"><span class="pre">perplexity_correlations.projection.</span></span><span class="sig-name descname"><span class="pre">l2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">estimate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-12</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#perplexity_correlations.projection.l2" title="Link to this definition">¶</a></dt>
-<dd><p>Given a real-valued vector (‘estimate’), and a positive real-valued vector ‘tau’,
+<dd><p>Given a real-valued vector ‘estimate’, and a positive real-valued vector ‘tau’,
 this method projects ‘estimate’, minimizing the L_2 norm subject to:</p>
 <p>sum(projected_estimate) = 1</p>
 <p>0 &lt;= projected_estimate[i] &lt;= tau[i], for all i</p>
@@ -399,7 +399,7 @@ distribution.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="perplexity_correlations.projection.linear">
 <span class="sig-prename descclassname"><span class="pre">perplexity_correlations.projection.</span></span><span class="sig-name descname"><span class="pre">linear</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">estimate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#perplexity_correlations.projection.linear" title="Link to this definition">¶</a></dt>
-<dd><p>Given a real valued vector (‘estimate’), and a positive real-valued vector ‘tau’,
+<dd><p>Given a real-valued vector ‘estimate’, and a positive real-valued vector ‘tau’,
 this method projects ‘estimate’, maximizing the dot product (linear projection)
 subject to:</p>
 <p>sum(projected_estimate) = 1</p>
