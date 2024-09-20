@@ -329,7 +329,7 @@ but we have now proved this.</p>
 <dd><p>Given the estimate from one of the estimator methods, this method projects
 it, minimizing the L_2 norm subject to:</p>
 <p>sum(projected_estimate) = 1</p>
-<p>0 &lt;= projected_estimate[i] &lt;= tau[i]</p>
+<p>0 &lt;= projected_estimate[i] &lt;= tau[i], for all i</p>
 <p>It uses the fast projection solution from Thrush et al. (2024):
 <a class="reference external" href="https://arxiv.org/abs/2409.05816">https://arxiv.org/abs/2409.05816</a></p>
 <p>This projection turns the estimate into a sampling distribution that you could use
@@ -402,7 +402,7 @@ distribution.</p>
 <dd><p>Given the estimate from one of the estimator methods, this method projects
 it, maximizing the dot product (linear projection) subject to:</p>
 <p>sum(projected_estimate) = 1</p>
-<p>0 &lt;= projected_estimate[i] &lt;= tau[i]</p>
+<p>0 &lt;= projected_estimate[i] &lt;= tau[i], for all i</p>
 <p>It uses the fast projection solution from Thrush et al. (2024):
 <a class="reference external" href="https://arxiv.org/abs/2409.05816">https://arxiv.org/abs/2409.05816</a></p>
 <p>This projection turns the estimate into a sampling distribution that you could use
