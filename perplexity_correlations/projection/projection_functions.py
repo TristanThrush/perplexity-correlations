@@ -19,8 +19,9 @@ run the estimation without those domains."
 
 def linear(estimate, tau):
     """
-    Given the estimate from one of the estimator methods, this method projects
-    it, maximizing the dot product (linear projection) subject to:
+    Given a real valued vector ('estimate'), and a positive real-valued vector 'tau',
+    this method projects 'estimate', maximizing the dot product (linear projection)
+    subject to:
 
     sum(projected_estimate) = 1
 
@@ -29,12 +30,12 @@ def linear(estimate, tau):
     It uses the fast projection solution from Thrush et al. (2024):
     https://arxiv.org/abs/2409.05816
 
-    This projection turns the estimate into a sampling distribution that you could use
-    for training a model on D different domains of text
-    (where len(estimate) == len(tau) == D). tau specifies constraints that prevent you
-    from upsampling a domain of text too much. In Thrush et al., the standard choice
-    for tau[i] is to set it as large as possible such that you won't duplicate data by
-    sampling the i-th domain with weight tau[i].
+    This projection turns the estimate from one of the estimator methods into a
+    sampling distribution that you could use for training a model on D different
+    domains of text (where len(estimate) == len(tau) == D). tau specifies constraints
+    that prevent you from upsampling a domain of text too much. In Thrush et al., the
+    standard choice for tau[i] is to set it as large as possible such that you won't
+    duplicate data by sampling the i-th domain with weight tau[i].
 
     NOTE: the solution here is not dependent upon the exact values in the estimate;
     it only depends on their ranks. This makes it easy to directly use the estimates
@@ -116,8 +117,8 @@ tau bounds: {1-np.sum(projected_estimate)} > {tau_sort[find_index]}"
 
 def l2(estimate, tau, atol=1e-12):
     """
-    Given the estimate from one of the estimator methods, this method projects
-    it, minimizing the L_2 norm subject to:
+    Given a real-valued vector ('estimate'), and a positive real-valued vector 'tau',
+    this method projects 'estimate', minimizing the L_2 norm subject to:
 
     sum(projected_estimate) = 1
 
@@ -126,12 +127,12 @@ def l2(estimate, tau, atol=1e-12):
     It uses the fast projection solution from Thrush et al. (2024):
     https://arxiv.org/abs/2409.05816
 
-    This projection turns the estimate into a sampling distribution that you could use
-    for training a model on D different domains of text
-    (where len(estimate) == len(tau) == D). tau specifies constraints that prevent you
-    from upsampling a domain of text too much. In Thrush et al., the standard choice
-    for tau[i] is to set it as large as possible such that you won't duplicate data by
-    sampling the i-th domain with weight tau[i].
+    This projection turns the estimate from one of the estimator methods into a
+    sampling distribution that you could use for training a model on D different
+    domains of text (where len(estimate) == len(tau) == D). tau specifies constraints
+    that prevent you from upsampling a domain of text too much. In Thrush et al., the
+    standard choice for tau[i] is to set it as large as possible such that you won't
+    duplicate data by sampling the i-th domain with weight tau[i].
 
     NOTE: unlike projection.linear, the solution here is dependent upon the exact
     values in the estimate, not just their ranks. To use this projection on estimates
