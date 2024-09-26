@@ -15,6 +15,7 @@ from filelock import FileLock
 import ast
 import time
 import pandas as pd
+import warnings
 
 parser = argparse.ArgumentParser()
 
@@ -34,7 +35,7 @@ parser.add_argument("--resume", action="store_true")
 parser.add_argument("--save_model_info", action="store_true")
 parser.add_argument("--device", default="cuda")
 parser.add_argument("--half_precision", action="store_true")
-parser.add_argument("--model_batch_size", type=int, default=1)
+parser.add_argument("--hf_llm_batch_size", type=int, default=1)
 
 args = parser.parse_args()
 
@@ -48,21 +49,24 @@ if args.multiple_job_config is not None:
     eleuther_eval_metrics = []
     eleuther_eval_lower_is_better = []
     for eval in config.evals:
+        eval = SimpleNamespace(**eval)
         eleuther_eval_names.append(eval.eleuther_name)
         eleuther_eval_metrics.append(eval.metric)
         eleuther_eval_lower_is_better.append(eval.lower_is_better)
     eleuther_eval_names = " ".join(eleuther_eval_names)
     eleuther_eval_metrics = " ".join(eleuther_eval_metrics)
-    eleuther_eval_lower_is_better = " ".join(eleuther_eval_lower_is_better)
+    eleuther_eval_lower_is_better = " ".join([str(obj) for obj in eleuther_eval_lower_is_better])
 
     for family in config.llms:
+        family = SimpleNamespace(**family)
         for llm in family.hf_names:
             output_path = os.path.join(config.raw_job_output_dir, llm.replace("/", "-"))
             os.makedirs(output_path, exist_ok=True)
-            command = f"bash error_and_bpb_scheduler.sh\
-{output_path} {family} {llm} {eleuther_eval_names} {eleuther_eval_metrics}\
-{eleuther_eval_lower_is_better}"
-            subprocess.call(command)
+            command = f"bash error_and_bpb_scheduler.sh \
+'{output_path}' '{family.family}' '{llm}' '{eleuther_eval_names}' \
+'{eleuther_eval_metrics}' '{eleuther_eval_lower_is_better}' \
+'{config.chunked_pretraining_data_sample}'"
+            subprocess.call(command, shell=True)
     sys.exit()
 
 
@@ -77,7 +81,7 @@ if None in (
     parser.error(
         "Arguments:\n\
 --hf_llm_name\n\
---eleuther_eval_names\
+--eleuther_eval_names\n\
 --eleuther_eval_metrics\n\
 --eleuther_eval_lower_is_better\n\
 --chunked_pretraining_data_sample\n\
@@ -86,7 +90,7 @@ are required if --multiple_job_config is not provided."
 
 os.makedirs(args.raw_job_output_path, exist_ok=True)
 
-ds = load_from_disk(args.chunked_pretraining_data_pool)
+ds = load_from_disk(args.chunked_pretraining_data_sample)
 
 tokenizer = AutoTokenizer.from_pretrained(
     args.hf_llm_name, revision=args.hf_llm_revision
@@ -115,7 +119,7 @@ model.eval()
 
 if args.save_model_info:
     config_dict = AutoConfig.from_pretrained(
-        args.model, revision=args.model_revision, trust_remote_code=True
+        args.hf_llm_name, revision=args.hf_llm_revision, trust_remote_code=True
     ).to_dict()
 
     info = {}
@@ -124,11 +128,11 @@ if args.save_model_info:
     info["context_size"] = config_dict.get("max_position_embeddings", None)
     info["parameter_count"] = sum(p.numel() for p in model.parameters())
 
-    open(f"{args.output_path}/llm_info.json", "w+").write(json.dumps(info))
+    open(f"{args.raw_job_output_path}/llm_info.json", "w+").write(json.dumps(info))
 
 
 def get_loss_hf(examples):
-    texts = examples[args.text_column]
+    texts = examples["text"]
 
     inputs = tokenizer(texts, return_tensors="pt", padding=True, truncation=False).to(
         args.device
@@ -155,13 +159,18 @@ def get_loss_hf(examples):
     # This averages while ignoring the padding
     losses = loss.sum(dim=1) / inputs.attention_mask[..., 1:].sum(dim=1)
 
-    return {
+    output_examples = {
         "id": examples["id"],
         "chunk": examples["chunk"],
         "loss": losses.tolist(),
         "token_count": inputs.attention_mask.sum(dim=1).tolist(),
         "byte_count": [len(text.encode("utf-8")) for text in texts],
     }
+
+    if "domain" in examples.keys():
+        output_examples["domain"] = examples["domain"]
+    
+    return output_examples
 
 
 # Create a list to hold the shards. This enables us to resume getting the loss
@@ -171,8 +180,8 @@ shards = []
 
 # Shard the dataset and add each shard to the list
 for i in range(args.loss_shards):
-    if args.resume and os.path.exists(f"{args.output_path}/loss_shards/{i}"):
-        shard = load_from_disk(f"{args.output_path}/loss_shards/{i}")
+    if args.resume and os.path.exists(f"{args.raw_job_output_path}/loss_shards/{i}"):
+        shard = load_from_disk(f"{args.raw_job_output_path}/loss_shards/{i}")
         shards.append(shard)
     else:
         shard = ds.shard(num_shards=args.loss_shards, index=i)
@@ -181,10 +190,10 @@ for i in range(args.loss_shards):
             lambda example: get_loss_hf(example),
             remove_columns=ds.column_names,
             batched=True,
-            batch_size=args.model_batch_size,
+            batch_size=args.hf_llm_batch_size,
         )
 
-        shard.save_to_disk(f"{args.output_path}/loss_shards/{i}")
+        shard.save_to_disk(f"{args.raw_job_output_path}/loss_shards/{i}")
 
         shards.append(shard)
 
@@ -194,7 +203,9 @@ bpb_df = concatenate_datasets(shards).to_pandas()
 # stored in the loss shard datasets in case they would be useful in the future.
 # Name the bpb column with the name and family of the LLM, so we can merge it into the
 # shared matrix.
-bpb_df[(args.hf_llm_family, args.hf_llm_name)] = (
+new_column_name = str((args.hf_llm_family, args.hf_llm_name))
+
+bpb_df[new_column_name] = (
     (bpb_df["token_count"] / bpb_df["byte_count"]) * bpb_df["loss"] / np.log(2)
 )
 bpb_df.drop(columns=["token_count", "byte_count", "loss"], inplace=True)
@@ -216,6 +227,10 @@ def update_csv_async(
             already_added = False
             try:
                 shared_df = pd.read_csv(csv_file_path)
+                if new_column_name in shared_df.columns:
+                    shared_df = shared_df.drop(columns=[new_column_name])
+                    warnings.warn(f"{new_column_name} was already in {csv_file_path}. Removed original values.")
+
             except FileNotFoundError:
                 # If the CSV doesn't exist yet, just save our matrix
                 df_to_add.to_csv(csv_file_path, index=False)
@@ -240,8 +255,8 @@ Job is retrying."
 # Now, add this model's BPB to the big shared BPB matrix that all of the jobs are
 # creating.
 bpb_matrix_path = "bpb_matrix.csv"
-bpb_lock_file_path = bpb_matrix_path + ".lock"
-update_csv_async(bpb_matrix_path, bpb_lock_file_path, bpb_df, ["id", "chunk"])
+bpb_lock_file_path = f".{bpb_matrix_path}.lock"
+update_csv_async(bpb_matrix_path, bpb_lock_file_path, bpb_df, ["id", "chunk", "domain"] if "domain" in bpb_df.columns else ["id", "chunk"])
 
 
 # Now we evaluate the model on the desired tasks and add the results to the big
@@ -266,7 +281,7 @@ results = lm_eval.simple_evaluate(
 # merge with the big shared error matrix.
 error_dict = {
     "benchmark": args.eleuther_eval_names,
-    (args.llm_model_family, args.llm_model_name): [],
+    new_column_name: [],
 }
 for index in range(len(args.eleuther_eval_names)):
     name = args.eleuther_eval_names[index]
@@ -275,9 +290,9 @@ for index in range(len(args.eleuther_eval_names)):
     score = results["results"][name][metric]
     if not lower_is_better:
         score = 1 - score
-    error_dict[(args.llm_model_family, args.llm_model_name)].append(score)
+    error_dict[new_column_name].append(score)
 
 error_df = pd.DataFrame.from_dict(error_dict)
-error_matrix_path = "bpb_matrix.csv"
-error_lock_file_path = bpb_matrix_path + ".lock"
+error_matrix_path = "error_matrix.csv"
+error_lock_file_path = f".{error_matrix_path}.lock"
 update_csv_async(error_matrix_path, error_lock_file_path, error_df, ["benchmark"])

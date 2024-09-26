@@ -7,7 +7,7 @@ import argparse
 from types import SimpleNamespace
 import numpy as np
 from collections import defaultdict, Counter
-
+import random
 
 np.random.seed(42)
 
@@ -23,6 +23,10 @@ ds = load_dataset(
     name=config.subset,
     split=config.split,
 )
+if config.subsample_ratio < 1:
+    sample_size = int(config.subsample_ratio * len(ds))
+    ds = ds.select(range(sample_size))
+
 print("full dataset length:", len(ds))
 
 if config.look_in_metadata_for_id:
