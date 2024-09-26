@@ -20,9 +20,9 @@ with open(args.config, "r") as file:
 
 print(config)
 ds = load_dataset(
-    config.pretraining_data_pool_hf_name,
-    name=config.pretraining_data_pool_subset,
-    split=config.pretraining_data_pool_split,
+    config.hf_name,
+    name=config.subset,
+    split=config.split,
 )
 print("full dataset length:", len(ds))
 
@@ -30,7 +30,8 @@ if config.look_in_metadata_for_id:
     ds = ds.map(
         lambda x: {
             config.id_column: literal_eval(x[config.metadata_column])[config.id_column]
-        }
+        },
+        num_proc=config.num_proc
     )
 
 if config.domain_column is not None:
@@ -40,7 +41,8 @@ if config.domain_column is not None:
                 config.domain_column: literal_eval(x[config.metadata_column])[
                     config.domain_column
                 ]
-            }
+            },
+            num_proc=config.num_proc
         )
 
 
@@ -54,7 +56,7 @@ if config.enforce_pages_per_domain:
             return False
         return domain_counts[row["domain"]] >= config.pages_per_domain
 
-    ds = ds.filter(filter_rows)
+    ds = ds.filter(filter_rows, num_proc=config.num_proc)
     print(
         f"number of examples with at least {config.pages_per_domain} domains: ", len(ds)
     )
@@ -73,11 +75,11 @@ if config.enforce_pages_per_domain:
 
     ds = ds.select(balanced_indices)
 
-    unique_domains_count = len(set(ds[config.pages_per_domain]))
+    unique_domains_count = len(set(ds["domain"]))
     print("unique domains:", unique_domains_count)
 
 
-reference_tokenizer = AutoTokenizer.from_pretrained(config.reference_tokenizer)
+reference_tokenizer = AutoTokenizer.from_pretrained(config.reference_tokenizer_hf_name)
 
 
 def get_text_chunks_with_reference_tokenizer(examples):
@@ -91,16 +93,12 @@ def get_text_chunks_with_reference_tokenizer(examples):
     previous_text_split_index = 0
 
     text_chunks = []
-    text_chunk_reference_token_counts = []
 
-    for begin_loc in range(0, seq_len, config.reference_context_size):
-        end_loc = min(begin_loc + config.reference_context_size, seq_len - 1)
+    for begin_loc in range(0, seq_len, config.reference_tokenizer_chunk_size):
+        end_loc = min(begin_loc + config.reference_tokenizer_chunk_size, seq_len - 1)
 
         text_split_index = reference_tokens.offset_mapping[end_loc][1]
         text_chunk = text[previous_text_split_index:text_split_index]
-        text_chunk_reference_token_counts.append(
-            len(reference_tokenizer(text_chunk).input_ids)
-        )
         text_chunks.append(text_chunk)
         previous_text_split_index = text_split_index
 
@@ -108,24 +106,27 @@ def get_text_chunks_with_reference_tokenizer(examples):
             break
 
     assert "".join(text_chunks) == text
-
-    return {
-        config.text_column: text_chunks,
-        config.id_column: [
-            f"{obj[0]}_{obj[1]}"
-            for obj in zip(
-                examples[config.id_column] * len(text_chunks), range(len(text_chunks))
-            )
-        ],
-        "reference_token_count": text_chunk_reference_token_counts,
+    
+    chunked_examples = {
+        "text": text_chunks,
+        "id": [examples[config.id_column][0]] * len(text_chunks),
+        "chunk": list(range(len(text_chunks)))
     }
+
+    if config.domain_column is not None:
+        domain = examples["domain"][0]
+        chunked_examples["domain"] = [domain]*len(text_chunks)
+
+    return chunked_examples
+
 
 
 features = Features(
     {
-        config.text_column: Value("string"),
-        config.id_column: Value("string"),
-        "reference_token_count": Value("int32"),
+        "text": Value("string"),
+        "id": Value("string"),
+        "chunk": Value("int32"),
+        "domain": Value("string"),
     }
 )
 ds = ds.map(
@@ -134,14 +135,7 @@ ds = ds.map(
     batched=True,
     batch_size=1,
     remove_columns=ds.column_names,
+    num_proc=config.num_proc,
 )
-
-ds = ds.rename_column(config.text_column, "text")
-ds = ds.rename_column(config.id_column, "id")
-
-columns_to_drop = [
-    column for column in ds.column_names if column not in ["text", "id", "domain"]
-]
-ds = ds.remove_columns(columns_to_drop)
 
 ds.save_to_disk(config.output_name)
