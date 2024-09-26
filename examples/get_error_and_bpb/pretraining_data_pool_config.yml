@@ -1,0 +1,13 @@
+reference_tokenizer_hf_name: meta-llama/Llama-2-7b-hf
+reference_tokenizer_chunk_size: 512
+pretraining_data_pool_hf_name: togethercomputer/RedPajama-Data-V2
+pretraining_data_pool_subset: sample
+pretraining_data_pool_split: train
+pretraining_data_pool_text_column: raw_content
+pretraining_data_pool_id_column: doc_id
+domain_column: "source_domain"
+metadata_column: "meta"
+pages_per_domain: 25
+enforce_pages_per_domain: true
+look_in_metadata_for_domain: true
+output_name: chunked_redpajama_v2
