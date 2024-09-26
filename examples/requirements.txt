@@ -4,3 +4,5 @@ PyYAML
 pandas
 transformers
 datasets
+argparse
+lm-eval

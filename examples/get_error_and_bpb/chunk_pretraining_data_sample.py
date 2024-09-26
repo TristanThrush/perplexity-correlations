@@ -18,7 +18,6 @@ args = parser.parse_args()
 with open(args.config, "r") as file:
     config = SimpleNamespace(**yaml.safe_load(file))
 
-print(config)
 ds = load_dataset(
     config.hf_name,
     name=config.subset,
@@ -31,7 +30,7 @@ if config.look_in_metadata_for_id:
         lambda x: {
             config.id_column: literal_eval(x[config.metadata_column])[config.id_column]
         },
-        num_proc=config.num_proc
+        num_proc=config.num_proc,
     )
 
 if config.domain_column is not None:
@@ -42,7 +41,7 @@ if config.domain_column is not None:
                     config.domain_column
                 ]
             },
-            num_proc=config.num_proc
+            num_proc=config.num_proc,
         )
 
 
@@ -106,19 +105,18 @@ def get_text_chunks_with_reference_tokenizer(examples):
             break
 
     assert "".join(text_chunks) == text
-    
+
     chunked_examples = {
         "text": text_chunks,
         "id": [examples[config.id_column][0]] * len(text_chunks),
-        "chunk": list(range(len(text_chunks)))
+        "chunk": list(range(len(text_chunks))),
     }
 
     if config.domain_column is not None:
         domain = examples["domain"][0]
-        chunked_examples["domain"] = [domain]*len(text_chunks)
+        chunked_examples["domain"] = [domain] * len(text_chunks)
 
     return chunked_examples
-
 
 
 features = Features(
