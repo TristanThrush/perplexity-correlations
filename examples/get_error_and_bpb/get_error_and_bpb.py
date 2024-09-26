@@ -55,7 +55,9 @@ if args.multiple_job_config is not None:
         eleuther_eval_lower_is_better.append(eval.lower_is_better)
     eleuther_eval_names = " ".join(eleuther_eval_names)
     eleuther_eval_metrics = " ".join(eleuther_eval_metrics)
-    eleuther_eval_lower_is_better = " ".join([str(obj) for obj in eleuther_eval_lower_is_better])
+    eleuther_eval_lower_is_better = " ".join(
+        [str(obj) for obj in eleuther_eval_lower_is_better]
+    )
 
     for family in config.llms:
         family = SimpleNamespace(**family)
@@ -169,7 +171,7 @@ def get_loss_hf(examples):
 
     if "domain" in examples.keys():
         output_examples["domain"] = examples["domain"]
-    
+
     return output_examples
 
 
@@ -229,7 +231,10 @@ def update_csv_async(
                 shared_df = pd.read_csv(csv_file_path)
                 if new_column_name in shared_df.columns:
                     shared_df = shared_df.drop(columns=[new_column_name])
-                    warnings.warn(f"{new_column_name} was already in {csv_file_path}. Removed original values.")
+                    warnings.warn(
+                        f"{new_column_name} was already in {csv_file_path}.\
+Removed original values."
+                    )
 
             except FileNotFoundError:
                 # If the CSV doesn't exist yet, just save our matrix
@@ -256,7 +261,12 @@ Job is retrying."
 # creating.
 bpb_matrix_path = "bpb_matrix.csv"
 bpb_lock_file_path = f".{bpb_matrix_path}.lock"
-update_csv_async(bpb_matrix_path, bpb_lock_file_path, bpb_df, ["id", "chunk", "domain"] if "domain" in bpb_df.columns else ["id", "chunk"])
+update_csv_async(
+    bpb_matrix_path,
+    bpb_lock_file_path,
+    bpb_df,
+    ["id", "chunk", "domain"] if "domain" in bpb_df.columns else ["id", "chunk"],
+)
 
 
 # Now we evaluate the model on the desired tasks and add the results to the big
