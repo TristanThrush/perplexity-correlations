@@ -232,7 +232,7 @@ def update_csv_async(
                 if new_column_name in shared_df.columns:
                     shared_df = shared_df.drop(columns=[new_column_name])
                     warnings.warn(
-                        f"{new_column_name} was already in {csv_file_path}.\
+                        f"{new_column_name} was already in {csv_file_path}. \
 Removed original values."
                     )
 
@@ -251,7 +251,7 @@ Removed original values."
             print(f"CSV updated and lock released by {time.ctime()}")
     except TimeoutError:
         print(
-            f"Failed to acquire the lock within {lock_timeout} seconds.\
+            f"Failed to acquire the lock within {lock_timeout} seconds. \
 Job is retrying."
         )
         update_csv_async(csv_file_path, lock_file_path, df_to_add, merge_on)
