@@ -30,7 +30,7 @@ parser.add_argument("--chunked_pretraining_data_sample", required=False)
 parser.add_argument("--raw_job_output_path", required=False)
 
 parser.add_argument("--hf_llm_revision", default="main")
-parser.add_argument("--loss_shards", type=int, default=50)
+parser.add_argument("--num_loss_shards", type=int, default=50)
 parser.add_argument("--resume", action="store_true")
 parser.add_argument("--save_model_info", action="store_true")
 parser.add_argument("--device", default="cuda")
@@ -181,12 +181,12 @@ def get_loss_hf(examples):
 shards = []
 
 # Shard the dataset and add each shard to the list
-for i in range(args.loss_shards):
+for i in range(args.num_loss_shards):
     if args.resume and os.path.exists(f"{args.raw_job_output_path}/loss_shards/{i}"):
         shard = load_from_disk(f"{args.raw_job_output_path}/loss_shards/{i}")
         shards.append(shard)
     else:
-        shard = ds.shard(num_shards=args.loss_shards, index=i)
+        shard = ds.shard(num_shards=args.num_loss_shards, index=i)
 
         shard = shard.map(
             lambda example: get_loss_hf(example),

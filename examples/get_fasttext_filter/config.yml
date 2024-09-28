@@ -1,0 +1,9 @@
+bpb_csv: ../get_error_and_bpb/rpjv2_sample_bpb_matrix.csv
+error_csv: ../get_error_and_bpb/error_matrix.csv
+target_benchmarks:
+  - sciq
+  - piqa
+aggregation: domain
+estimator: spearmanr
+chunked_pretraining_data_sample: ../get_error_and_bpb/chunked_rpjv2_sample
+fasttext_model_output_name: sciq_piqa_target_fasttext
