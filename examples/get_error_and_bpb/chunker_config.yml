@@ -13,4 +13,4 @@ pages_per_domain: 5
 enforce_pages_per_domain: true
 look_in_metadata_for_domain: true
 look_in_metadata_for_id: true
-output_name: chunked_redpajama_v2
+output_name: chunked_rpjv2_sample

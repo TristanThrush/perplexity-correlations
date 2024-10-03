@@ -1,4 +1,4 @@
-bpb_csv: ../get_error_and_bpb/rpjv2_sample_bpb_matrix.csv
+bpb_csv: ../get_error_and_bpb/chunked_rpjv2_sample_bpb_matrix.csv
 error_csv: ../get_error_and_bpb/error_matrix.csv
 target_benchmarks:
   - sciq

@@ -4,7 +4,7 @@ import argparse
 from datasets import load_from_disk
 import pandas as pd
 import fasttext
-from perplexty_correlations.estimation import (
+from perplexity_correlations.estimation import (
     product,
     sign,
     sign_cdf,
@@ -12,6 +12,8 @@ from perplexty_correlations.estimation import (
     spearmanr,
 )
 import numpy as np
+import os
+
 
 estimators = {
     "product": product,
@@ -97,47 +99,47 @@ labels[np.argsort(estimate)[int(len(estimate) / 2) :]] = "__label__include"
 labels_df["label"] = labels
 
 # Load the training dataset
-ds = load_from_disk(config.chunked_pretraining_data_sample).to_pandas()
+ds = load_from_disk(config.chunked_pretraining_data_sample)
 
 ds = ds.train_test_split(test_size=0.01)
+
+aggregation_columns = [column for column in ["id", "chunk", "domain"] if column in labels_df.columns]
 
 train_df = ds["train"].to_pandas()
 train_df = pd.merge(
     train_df,
     labels_df,
-    on=[column for column in ["id", "chunk", "domain"] if column in labels_df.columns],
+    on=aggregation_columns,
     how="inner",
 )
-for column in ["id", "chunk", "domain"]:
-    if column in train_df.columns:
-        train_df.drop([column], inplace=True)
+train_df = train_df[["label", "text"]]
 
 test_df = ds["test"].to_pandas()
 test_df = pd.merge(
     test_df,
     labels_df,
-    on=[column for column in ["id", "chunk", "domain"] if column in labels_df.columns],
+    on=aggregation_columns,
     how="inner",
 )
-for column in ["id", "chunk", "domain"]:
-    if column in test_df.columns:
-        test_df.drop([column], inplace=True)
+test_df = test_df[["label", "text"]]
+
+os.makedirs("fasttext_datasets", exist_ok=True)
 
 # Save the processed data to a file
 train_df.to_csv(
-    f"{config.fasttext_model_output_name}_train.txt", index=False, sep=" ", header=False
+    f"fasttext_datasets/{config.fasttext_model_output_name}.train", index=False, sep=" ", header=False
 )
 test_df.to_csv(
-    f"{config.fasttext_model_output_name}_test.txt", index=False, sep=" ", header=False
+    f"fasttext_datasets/{config.fasttext_model_output_name}.valid", index=False, sep=" ", header=False
 )
 
 # Train the FastText model
 model = fasttext.train_supervised(
-    input=f"{config.fasttext_model_output_name}_train.txt", wordNgrams=2
+    input=f"fasttext_datasets/{config.fasttext_model_output_name}.train", wordNgrams=2
 )
 
 # Evaluate the model
-result = model.test(f"{config.fasttext_model_output_name}_test.txt")
+result = model.test(f"fasttext_datasets/{config.fasttext_model_output_name}.valid")
 print(f"Number of samples: {result[0]}")
 print(f"Precision@1: {result[1]}")
 print(f"Recall@1: {result[2]}")

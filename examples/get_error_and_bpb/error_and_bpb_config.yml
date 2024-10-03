@@ -1,5 +1,5 @@
-chunked_pretraining_data_sample: chunked_redpajama_v2
-raw_job_output_dir: raw_job_outputs
+chunked_pretraining_data_sample: chunked_rpjv2_sample
+raw_job_output_dir: raw_error_bpb_job_outputs_chunked_rpjv2_sample
 evals:
   - eleuther_name: arc_easy
     metric: acc,none
@@ -10,7 +10,10 @@ evals:
   - eleuther_name: sciq
     metric: acc,none
     lower_is_better: false
-  - eleuther_name: lambada
+  - eleuther_name: lambada_openai
+    metric: perplexity,none
+    lower_is_better: true
+  - eleuther_name: lambada_standard
     metric: perplexity,none
     lower_is_better: true
   - eleuther_name: lambada_openai_mt_de
@@ -30,7 +33,7 @@ llms:
     hf_names:
       - bigscience/bloom-560m
       - bigscience/bloom-1b1
-      - bigscience/bloom-3b	
+      - bigscience/bloom-3b 
       - bigscience/bloom-7b1
   - family: starcoder
     hf_names:
@@ -69,9 +72,9 @@ llms:
       - EleutherAI/pythia-6.9b
   - family: gpt-neo
     hf_names:
-      - EleutherAI/gpt-neo-125m	
-      - EleutherAI/gpt-neo-1.3B	
-      - EleutherAI/gpt-neo-2.7B	
+      - EleutherAI/gpt-neo-125m 
+      - EleutherAI/gpt-neo-1.3B 
+      - EleutherAI/gpt-neo-2.7B 
   - family: danube
     hf_names:
       - h2oai/h2o-danube-1.8b-base
@@ -168,8 +171,8 @@ llms:
       - stabilityai/stablelm-2-1_6b
   - family: rpj-incite
     hf_names:
-      - togethercomputer/RedPajama-INCITE-Base-3B-v1	
-      - togethercomputer/RedPajama-INCITE-Base-7B-v0.1	
+      - togethercomputer/RedPajama-INCITE-Base-3B-v1    
+      - togethercomputer/RedPajama-INCITE-Base-7B-v0.1  
   - family: amber
     hf_names:
       - LLM360/Amber

@@ -19,7 +19,7 @@ import warnings
 
 parser = argparse.ArgumentParser()
 
-parser.add_argument("--multiple_job_config")
+parser.add_argument("--config")
 
 parser.add_argument("--hf_llm_name", required=False)
 parser.add_argument("--hf_llm_family", required=False)
@@ -39,10 +39,10 @@ parser.add_argument("--hf_llm_batch_size", type=int, default=1)
 
 args = parser.parse_args()
 
-# If multiple_job_config is specified, use this script just to kick off a bunch
+# If args.config is specified, use this script just to kick off a bunch
 # of jobs, and then exit from the script
-if args.multiple_job_config is not None:
-    with open(args.multiple_job_config, "r") as file:
+if args.config is not None:
+    with open(args.config, "r") as file:
         config = SimpleNamespace(**yaml.safe_load(file))
 
     eleuther_eval_names = []
@@ -87,7 +87,7 @@ if None in (
 --eleuther_eval_metrics\n\
 --eleuther_eval_lower_is_better\n\
 --chunked_pretraining_data_sample\n\
-are required if --multiple_job_config is not provided."
+are required if --config is not provided."
     )
 
 os.makedirs(args.raw_job_output_path, exist_ok=True)
@@ -95,27 +95,28 @@ os.makedirs(args.raw_job_output_path, exist_ok=True)
 ds = load_from_disk(args.chunked_pretraining_data_sample)
 
 tokenizer = AutoTokenizer.from_pretrained(
-    args.hf_llm_name, revision=args.hf_llm_revision
+    args.hf_llm_name, revision=args.hf_llm_revision, trust_remote_code=True
 )
 
 if not hasattr(tokenizer, "pad_token") or tokenizer.pad_token is None:
-    tokenizer.pad_token = tokenizer.eos_token
+    if not hasattr(tokenizer, "eos_token") or tokenizer.eos_token is None:
+        tokenizer.pad_token = '<|endoftext|>'
+    else:
+        tokenizer.pad_token = tokenizer.eos_token
 
 if args.half_precision:
     model = AutoModelForCausalLM.from_pretrained(
         args.hf_llm_name,
         revision=args.hf_llm_revision,
-        device_map="auto",
         torch_dtype=torch.float16,
         trust_remote_code=True,
-    )
+    ).to(args.device)
 else:
     model = AutoModelForCausalLM.from_pretrained(
         args.hf_llm_name,
         revision=args.hf_llm_revision,
-        device_map="auto",
         trust_remote_code=True,
-    )
+    ).to(args.device)
 
 model.eval()
 
@@ -139,6 +140,9 @@ def get_loss_hf(examples):
     inputs = tokenizer(texts, return_tensors="pt", padding=True, truncation=False).to(
         args.device
     )
+
+    # Some models require this.
+    inputs["attention_mask"] = inputs["attention_mask"].bool()
 
     outputs = model(**inputs)
 
@@ -259,7 +263,7 @@ Job is retrying."
 
 # Now, add this model's BPB to the big shared BPB matrix that all of the jobs are
 # creating.
-bpb_matrix_path = "bpb_matrix.csv"
+bpb_matrix_path = f"{args.chunked_pretraining_data_sample}_bpb_matrix.csv"
 bpb_lock_file_path = f".{bpb_matrix_path}.lock"
 update_csv_async(
     bpb_matrix_path,
@@ -284,7 +288,7 @@ results = lm_eval.simple_evaluate(
     batch_size="auto",
     limit=5000,
     bootstrap_iters=1000,
-    log_samples=True,
+    log_samples=False,
 )
 
 # Make the name of the error column the llm model family and name, so we can
