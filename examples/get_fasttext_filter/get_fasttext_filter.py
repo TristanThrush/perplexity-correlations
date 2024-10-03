@@ -156,7 +156,7 @@ model.save_model(f"{config.fasttext_model_output_name}.bin")
 test_results = {}
 
 
-# First, get precision and recall at classifying the text correctly.
+# First, get f1, precision, and recall for classifying the text correctly.
 def predict_label(text):
     labels, probabilities = model.predict(text, k=1)
     return labels[0]
@@ -173,7 +173,6 @@ test_results["recall@1"] = recall_score(
 )
 
 # Now, a fine-grained eval: see what language(s) our model wants to select.
-# Define a function to get the top label prediction
 language_id_model_path = hf_hub_download(
     repo_id="facebook/fasttext-language-identification", filename="model.bin"
 )
