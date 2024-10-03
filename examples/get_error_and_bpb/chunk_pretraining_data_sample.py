@@ -47,10 +47,10 @@ if config.domain_column is not None:
             },
             num_proc=config.num_proc,
         )
+    ds = ds.rename_column(config.domain_column, "domain")
 
 
 if config.enforce_pages_per_domain:
-    ds = ds.rename_column(config.domain_column, "domain")
     domain_counts = Counter(ds["domain"])
 
     # Filter out domains without enough pages.
@@ -123,14 +123,17 @@ def get_text_chunks_with_reference_tokenizer(examples):
     return chunked_examples
 
 
-features = Features(
-    {
+feature_dict =  {
         "text": Value("string"),
         "id": Value("string"),
         "chunk": Value("int32"),
         "domain": Value("string"),
     }
-)
+
+if config.domain_column is not None:
+    feature_dict["domain"] = Value("string")
+
+features = Features(feature_dict)
 ds = ds.map(
     get_text_chunks_with_reference_tokenizer,
     features=features,

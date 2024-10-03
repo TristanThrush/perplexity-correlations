@@ -23,11 +23,13 @@ parser.add_argument("--config")
 
 parser.add_argument("--hf_llm_name", required=False)
 parser.add_argument("--hf_llm_family", required=False)
-parser.add_argument("--eleuther_eval_names", nargs="+", required=False)
-parser.add_argument("--eleuther_eval_metrics", nargs="+", required=False)
-parser.add_argument("--eleuther_eval_lower_is_better", nargs="+", required=False)
+parser.add_argument("--eleuther_eval_names", nargs="*", required=False)
+parser.add_argument("--eleuther_eval_metrics", nargs="*", required=False)
+parser.add_argument("--eleuther_eval_lower_is_better", nargs="*", required=False)
 parser.add_argument("--chunked_pretraining_data_sample", required=False)
 parser.add_argument("--raw_job_output_path", required=False)
+parser.add_argument("--error_output_csv", required=False)
+parser.add_argument("--bpb_output_csv", required=False)
 
 parser.add_argument("--hf_llm_revision", default="main")
 parser.add_argument("--num_loss_shards", type=int, default=50)
@@ -67,7 +69,8 @@ if args.config is not None:
             command = f"bash error_and_bpb_scheduler.sh \
 '{output_path}' '{family.family}' '{llm}' '{eleuther_eval_names}' \
 '{eleuther_eval_metrics}' '{eleuther_eval_lower_is_better}' \
-'{config.chunked_pretraining_data_sample}'"
+'{config.chunked_pretraining_data_sample}' '{config.error_output_csv}' \
+'{config.bpb_output_csv}'"
             subprocess.call(command, shell=True)
     sys.exit()
 
@@ -79,6 +82,8 @@ if None in (
     args.eleuther_eval_metrics,
     args.eleuther_eval_lower_is_better,
     args.chunked_pretraining_data_sample,
+    args.error_output_csv,
+    args.bpb_output_csv,
 ):
     parser.error(
         "Arguments:\n\
@@ -87,6 +92,8 @@ if None in (
 --eleuther_eval_metrics\n\
 --eleuther_eval_lower_is_better\n\
 --chunked_pretraining_data_sample\n\
+--error_output_csv\n\
+--bpb_output_csv\n\
 are required if --config is not provided."
     )
 
@@ -263,15 +270,19 @@ Job is retrying."
 
 # Now, add this model's BPB to the big shared BPB matrix that all of the jobs are
 # creating.
-bpb_matrix_path = f"{args.chunked_pretraining_data_sample}_bpb_matrix.csv"
-bpb_lock_file_path = f".{bpb_matrix_path}.lock"
+def get_lockfile_pathname(pathname):
+    directory, filename = os.path.split(pathname)
+    invisible_filename = f".{filename}.lock"
+    lockfile_pathname = os.path.join(directory, invisible_filename)
+    return lockfile_pathname
+
+bpb_lock_file_pathname = get_lockfile_pathname(args.bpb_output_csv)
 update_csv_async(
-    bpb_matrix_path,
-    bpb_lock_file_path,
+    args.bpb_output_csv,
+    bpb_lock_file_pathname,
     bpb_df,
     ["id", "chunk", "domain"] if "domain" in bpb_df.columns else ["id", "chunk"],
 )
-
 
 # Now we evaluate the model on the desired tasks and add the results to the big
 # shared eval matrix.
@@ -307,6 +318,5 @@ for index in range(len(args.eleuther_eval_names)):
     error_dict[new_column_name].append(score)
 
 error_df = pd.DataFrame.from_dict(error_dict)
-error_matrix_path = "error_matrix.csv"
-error_lock_file_path = f".{error_matrix_path}.lock"
-update_csv_async(error_matrix_path, error_lock_file_path, error_df, ["benchmark"])
+error_lock_file_pathname = get_lockfile_pathname(args.error_output_csv)
+update_csv_async(args.error_output_csv, error_lock_file_pathname, error_df, ["benchmark"])
