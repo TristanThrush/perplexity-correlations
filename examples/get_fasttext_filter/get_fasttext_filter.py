@@ -103,7 +103,7 @@ labels_df["label"] = labels
 # Load the training dataset
 ds = load_from_disk(config.chunked_pretraining_data_sample)
 
-ds = ds.train_test_split(test_size=0.01)
+ds = ds.train_test_split(test_size=0.05)
 
 aggregation_columns = [
     column for column in ["id", "chunk", "domain"] if column in labels_df.columns
@@ -164,13 +164,13 @@ def predict_label(text):
 
 test_df["pred"] = test_df["text"].apply(predict_label)
 test_results["num_samples"] = len(test_df)
-test_results["f1"] = f1_score(test_df["label"], test_df["pred"], average="binary")
-test_results["precision@1"] = precision_score(
-    test_df["label"], test_df["pred"], average="binary"
-)
-test_results["recall@1"] = recall_score(
-    test_df["label"], test_df["pred"], average="binary"
-)
+test_results["f1"] = float(f1_score(test_df["label"], test_df["pred"], average="binary", pos_label="__label__include"))
+test_results["precision@1"] = float(precision_score(
+    test_df["label"], test_df["pred"], average="binary", pos_label="__label__include"
+))
+test_results["recall@1"] = float(recall_score(
+    test_df["label"], test_df["pred"], average="binary", pos_label="__label__include"
+))
 
 # Now, a fine-grained eval: see what language(s) our model wants to select.
 language_id_model_path = hf_hub_download(
@@ -186,17 +186,19 @@ def predict_language(text):
 
 test_df["language"] = test_df["text"].apply(predict_language)
 
-test_results["total_language_dist"] = test_df["language"].value_counts() / len(test_df)
+test_results["total_language_dist"] = (test_df["language"].value_counts() / len(test_df)).to_dict()
 
 test_df_selected = test_df[test_df["pred"] == "__label__include"]
-test_results["selected_language_dist"] = test_df_selected[
+test_results["selected_language_dist"] = (test_df_selected[
     "language"
-].value_counts() / len(test_df_selected)
+].value_counts() / len(test_df_selected)).to_dict()
 
 test_df_gold_selected = test_df[test_df["label"] == "__label__include"]
-test_results["gold_language_dist"] = test_df_gold_selected[
+test_results["gold_language_dist"] = (test_df_gold_selected[
     "language"
-].value_counts() / len(test_df_gold_selected)
+].value_counts() / len(test_df_gold_selected)).to_dict()
+
+print(test_results)
 
 with open(f"{config.fasttext_model_output_name}_test_results.yml", "w") as file:
     yaml.dump(test_results, file)
