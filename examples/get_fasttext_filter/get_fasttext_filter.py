@@ -158,7 +158,7 @@ test_results = {}
 
 # First, get f1, precision, and recall for classifying the text correctly.
 def predict_label(text):
-    labels, probabilities = model.predict(text, k=1)
+    labels, probabilities = model.predict(text.replace("\n", " "), k=1)
     return labels[0]
 
 
@@ -180,7 +180,7 @@ language_id_model = fasttext.load_model(language_id_model_path)
 
 
 def predict_language(text):
-    labels, probabilities = language_id_model.predict(text, k=1)
+    labels, probabilities = language_id_model.predict(text.replace("\n", " "), k=1)
     return labels[0]
 
 
