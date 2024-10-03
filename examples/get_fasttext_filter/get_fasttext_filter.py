@@ -2,8 +2,10 @@ import yaml
 from types import SimpleNamespace
 import argparse
 from datasets import load_from_disk
+from huggingface_hub import hf_hub_download
 import pandas as pd
 import fasttext
+from sklearn.metrics import f1_score, precision_score, recall_score
 from perplexity_correlations.estimation import (
     product,
     sign,
@@ -103,7 +105,9 @@ ds = load_from_disk(config.chunked_pretraining_data_sample)
 
 ds = ds.train_test_split(test_size=0.01)
 
-aggregation_columns = [column for column in ["id", "chunk", "domain"] if column in labels_df.columns]
+aggregation_columns = [
+    column for column in ["id", "chunk", "domain"] if column in labels_df.columns
+]
 
 train_df = ds["train"].to_pandas()
 train_df = pd.merge(
@@ -127,10 +131,16 @@ os.makedirs("fasttext_datasets", exist_ok=True)
 
 # Save the processed data to a file
 train_df.to_csv(
-    f"fasttext_datasets/{config.fasttext_model_output_name}.train", index=False, sep=" ", header=False
+    f"fasttext_datasets/{config.fasttext_model_output_name}.train",
+    index=False,
+    sep=" ",
+    header=False,
 )
 test_df.to_csv(
-    f"fasttext_datasets/{config.fasttext_model_output_name}.valid", index=False, sep=" ", header=False
+    f"fasttext_datasets/{config.fasttext_model_output_name}.valid",
+    index=False,
+    sep=" ",
+    header=False,
 )
 
 # Train the FastText model
@@ -138,11 +148,56 @@ model = fasttext.train_supervised(
     input=f"fasttext_datasets/{config.fasttext_model_output_name}.train", wordNgrams=2
 )
 
-# Evaluate the model
-result = model.test(f"fasttext_datasets/{config.fasttext_model_output_name}.valid")
-print(f"Number of samples: {result[0]}")
-print(f"Precision@1: {result[1]}")
-print(f"Recall@1: {result[2]}")
-
 # Save the model
 model.save_model(f"{config.fasttext_model_output_name}.bin")
+
+
+# Evaluate the model.
+test_results = {}
+
+
+# First, get precision and recall at classifying the text correctly.
+def predict_label(text):
+    labels, probabilities = model.predict(text, k=1)
+    return labels[0]
+
+
+test_df["pred"] = test_df["text"].apply(predict_label)
+test_results["num_samples"] = len(test_df)
+test_results["f1"] = f1_score(test_df["label"], test_df["pred"], average="binary")
+test_results["precision@1"] = precision_score(
+    test_df["label"], test_df["pred"], average="binary"
+)
+test_results["recall@1"] = recall_score(
+    test_df["label"], test_df["pred"], average="binary"
+)
+
+# Now, a fine-grained eval: see what language(s) our model wants to select.
+# Define a function to get the top label prediction
+language_id_model_path = hf_hub_download(
+    repo_id="facebook/fasttext-language-identification", filename="model.bin"
+)
+language_id_model = fasttext.load_model(language_id_model_path)
+
+
+def predict_language(text):
+    labels, probabilities = language_id_model.predict(text, k=1)
+    return labels[0]
+
+
+test_df["language"] = test_df["text"].apply(predict_language)
+
+test_results["total_language_dist"] = test_df["language"].value_counts() / len(test_df)
+
+test_df_selected = test_df[test_df["pred"] == "__label__include"]
+test_results["selected_language_dist"] = test_df_selected[
+    "language"
+].value_counts() / len(test_df_selected)
+
+test_df_gold_selected = test_df[test_df["label"] == "__label__include"]
+test_results["gold_language_dist"] = test_df_gold_selected[
+    "language"
+].value_counts() / len(test_df_gold_selected)
+
+with open(f"{config.fasttext_model_output_name}_test_results.yml", "w") as file:
+    yaml.dump(test_results, file)
