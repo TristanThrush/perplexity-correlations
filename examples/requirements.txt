@@ -16,3 +16,4 @@ transformers_stream_generator==0.0.5
 flash-attn==2.6.3
 scikit-learn==1.5.2
 huggingface-hub==0.25.1
+numpy==1.26.4
