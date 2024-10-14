@@ -1,7 +1,7 @@
 chunked_pretraining_data_sample: chunked_datasets/chunked_rpjv2_sample
 raw_job_output_dir: raw_error_and_bpb_job_outputs/rpjv2_jobs
 error_output_csv: error_csvs/error_matrix.csv
-bpb_output_csv: bpb_csvs/chunked_rpjv2_sample_bpb_matrix.csv
+bpb_output_csv_prefix: bpb_csvs/chunked_rpjv2_sample_bpb_matrix
 evals:
   - eleuther_name: arc_easy
     metric: acc,none
@@ -31,156 +31,173 @@ evals:
     metric: perplexity,none
     lower_is_better: true
 llms:
+  - family: scb10x
+    hf_names:
+      - scb10x/typhoon-7b
+  - family: stabilityai
+    hf_names:
+      - stabilityai/stablelm-2-1_6b
+      - stabilityai/stablelm-3b-4e1t
+      - stabilityai/stablelm-base-alpha-3b
+      - stabilityai/stablelm-base-alpha-7b
+  - family: beespoke
+    hf_names:
+      - BEE-spoke-data/smol_llama-101M-GQA
+      - BEE-spoke-data/smol_llama-81M-tied
+      - BEE-spoke-data/verysmol_llama-v11-KIx2
+  - family: itsliupeng
+    hf_names:
+      - itsliupeng/openllama-7b-base
+  - family: cyberagent
+    hf_names:
+      - cyberagent/open-calm-large
+  - family: statespaces
+    hf_names:
+      - state-spaces/mamba-1.4b-hf
+      - state-spaces/mamba-130m-hf
+      - state-spaces/mamba-370m-hf
+      - state-spaces/mamba-790m-hf
+  - family: jackfram
+    hf_names:
+     - JackFram/llama-160m
+  - family: h2oai
+    hf_names:
+     - h2oai/h2o-danube-1.8b-base
+  - family: bigcode
+    hf_names:
+      - bigcode/gpt_bigcode-santacoder
+  - family: turkunlp
+    hf_names:
+      - TurkuNLP/gpt3-finnish-large
+      - TurkuNLP/gpt3-finnish-small
+  - family: aiswedenmodels
+    hf_names:
+      - AI-Sweden-Models/gpt-sw3-1.3b
+      - AI-Sweden-Models/gpt-sw3-126m
+      - AI-Sweden-Models/gpt-sw3-356m
+      - AI-Sweden-Models/gpt-sw3-6.7b-v2
+  - family: budecosystem
+    hf_names:
+      - budecosystem/boomer-1b
   - family: bloom
     hf_names:
-      - bigscience/bloom-560m
-      - bigscience/bloom-1b1
-      - bigscience/bloom-3b 
+      - bigscience/bloom-3b
       - bigscience/bloom-7b1
+  - family: gordicaleksa
+    hf_names:
+      - gordicaleksa/YugoGPT
+  - family: dampish
+    hf_names:
+     - Dampish/StellarX-4B-V0.2
+  - family: sail
+    hf_names:
+      - sail/Sailor-0.5B
+      - sail/Sailor-1.8B
+      - sail/Sailor-4B
+      - sail/Sailor-7B
+  - family: nytk
+    hf_names:
+      - NYTK/PULI-GPTrio
+  - family: vilm
+    hf_names:
+      - vilm/Mixsmol-4x400M-v0.1-epoch2
+  - family: falladrin
+    hf_names:
+      - Felladrin/Minueza-32M-Base
+  - family: ahxt
+    hf_names:
+      - LiteLlama-460M-1T
+  - family: tencentarc
+    hf_names:
+      - TencentARC/Mistral_Pro_8B_v0.1
+      - TencentARC/LLaMA-Pro-8B
+  - family: llm360
+    hf_names:
+      - LLM360/Amber
+  - family: Wanfq
+    hf_names:
+      - Wanfq/FuseLLM-7B
   - family: starcoder
     hf_names:
       - bigcode/starcoderbase-1b
       - bigcode/starcoderbase-3b
       - bigcode/starcoderbase-7b
-      - bigcode/starcoder2-7b
-      - bigcode/starcoder2-3b
   - family: cerebras
     hf_names:
       - cerebras/Cerebras-GPT-111M
-      - cerebras/Cerebras-GPT-256M
-      - cerebras/Cerebras-GPT-590M
-      - cerebras/Cerebras-GPT-1.3B
       - cerebras/Cerebras-GPT-2.7B
       - cerebras/Cerebras-GPT-6.7B
-      - cerebras/btlm-3b-8k-base
-  - family: gpt2
-    hf_names:
-      - gpt2
-      - gpt2-medium
-      - gpt2-large
-      - gpt2-xl
-  - family: gpt-j
-    hf_names:
-      - EleutherAI/gpt-j-6b
   - family: pythia
     hf_names:
-      - EleutherAI/pythia-31m
-      - EleutherAI/pythia-70m
+      - EleutherAI/pythia-1.4b-deduped
+      - EleutherAI/pythia-1.4b-v0
       - EleutherAI/pythia-160m
+      - EleutherAI/pythia-1b-deduped
+      - EleutherAI/pythia-2.8b-deduped
+      - EleutherAI/pythia-2.8b-v0
       - EleutherAI/pythia-410m
-      - EleutherAI/pythia-1b
-      - EleutherAI/pythia-1.4b
-      - EleutherAI/pythia-2.8b
-      - EleutherAI/pythia-6.9b
+      - EleutherAI/pythia-410m-deduped
+      - EleutherAI/pythia-6.9b-deduped
+      - EleutherAI/pythia-6.9b-deduped_step100000
+      - EleutherAI/pythia-6.9b-deduped_step120000
+      - EleutherAI/pythia-6.9b-deduped_step140000
+      - EleutherAI/pythia-6.9b-deduped_step20000
+      - EleutherAI/pythia-6.9b-deduped_step40000
+      - EleutherAI/pythia-6.9b-deduped_step60000
+      - EleutherAI/pythia-6.9b-deduped_step80000
+      - EleutherAI/pythia-6.9b-v0
   - family: gpt-neo
     hf_names:
       - EleutherAI/gpt-neo-125m 
       - EleutherAI/gpt-neo-1.3B 
-      - EleutherAI/gpt-neo-2.7B 
-  - family: danube
-    hf_names:
-      - h2oai/h2o-danube-1.8b-base
-      - h2oai/h2o-danube2-1.8b-base
-      - h2oai/h2o-danube3-500m-base
-      - h2oai/h2o-danube3-4b-base
+      - EleutherAI/gpt-neo-2.7B
   - family: falcon
     hf_names:
       - tiiuae/falcon-7b
       - tiiuae/falcon-rw-1b
-  - family: smollm
-    hf_names:
-      - HuggingFaceTB/SmolLM-135M
-      - HuggingFaceTB/SmolLM-360M
-      - HuggingFaceTB/SmolLM-1.7B
-  - family: yi
-    hf_names:
-      - 01-ai/Yi-6B
   - family: mistral
     hf_names:
       - mistralai/Mistral-7B-v0.1
   - family: qwen
     hf_names:
-      - Qwen/Qwen-1_8B
-      - Qwen/Qwen-7B
       - Qwen/Qwen1.5-0.5B
       - Qwen/Qwen1.5-1.8B
       - Qwen/Qwen1.5-4B
       - Qwen/Qwen1.5-7B
-      - Qwen/Qwen2-0.5B
-      - Qwen/Qwen2-1.5B
-      - Qwen/Qwen2-7B
   - family: phi
     hf_names:
       - microsoft/phi-1_5
-      - microsoft/phi-2
-  - family: gemma
-    hf_names:
-      - google/gemma-2b
-      - google/gemma-7b
-      - google/gemma-2-2b
   - family: opt
     hf_names:
-      - facebook/opt-125m
-      - facebook/opt-350m
-      - facebook/opt-1.3b
       - facebook/opt-2.7b
-      - facebook/opt-6.7b
   - family: xglm
     hf_names:
-      - facebook/xglm-1.7B
       - facebook/xglm-4.5B
+      - facebook/xglm-564M
+      - facebook/xglm-7.5B
   - family: codellama
     hf_names:
       - codellama/CodeLlama-7b-hf
-  - family: deepseek
-    hf_names:
-      - deepseek-ai/deepseek-llm-7b-base
-  - family: deepseek-coder
-    hf_names:
-      - deepseek-ai/deepseek-coder-1.3b-base
-      - deepseek-ai/deepseek-coder-6.7b-base
   - family: mpt
     hf_names:
-      - mosaicml/mpt-7b 
+      - mosaicml/mpt-7b-8k 
   - family: llama
     hf_names:
       - meta-llama/Llama-2-7b-hf
-      - meta-llama/Meta-Llama-3-8B
-      - meta-llama/Meta-Llama-3.1-8B
-      - huggyllama/llama-7b
-  - family: olmo
-    hf_names:
-      - allenai/OLMo-1B-hf
-      - allenai/OLMo-7B-hf
-      - allenai/OLMo-7B-0424-hf
   - family: open-llama
     hf_names:
       - openlm-research/open_llama_3b
-      - openlm-research/open_llama_7b
       - openlm-research/open_llama_3b_v2
       - openlm-research/open_llama_7b_v2
-  - family: internlm
-    hf_names:
-      - internlm/internlm2-7b
   - family: decilm
     hf_names:
       - Deci/DeciLM-7B
-  - family: stablelm
-    hf_names:
-      - stabilityai/stablelm-base-alpha-3b
-      - stabilityai/stablelm-base-alpha-7b-v2
-      - stabilityai/stablelm-base-alpha-7b
-      - stabilityai/stablelm-2-1_6b
-  - family: rpj-incite
-    hf_names:
-      - togethercomputer/RedPajama-INCITE-Base-3B-v1    
-      - togethercomputer/RedPajama-INCITE-Base-7B-v0.1  
   - family: amber
     hf_names:
       - LLM360/Amber
   - family: tinyllama
     hf_names:
-      - TinyLlama/TinyLlama_v1.1
-  - family: mpt-redpajama
-    hf_names:
-      - mosaicml/mpt-1b-redpajama-200b
+      - TinyLlama/TinyLlama-1.1B-intermediate-step-1431k-3T
+      - TinyLlama/TinyLlama-1.1B-intermediate-step-240k-503b
+      - TinyLlama/TinyLlama-1.1B-intermediate-step-480k-1T
+      - TinyLlama/TinyLlama-1.1B-step-50K-105b

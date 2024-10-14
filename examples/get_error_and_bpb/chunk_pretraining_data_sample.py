@@ -79,7 +79,7 @@ if config.enforce_pages_per_domain:
     ds = ds.select(balanced_indices)
 
     unique_domains_count = len(set(ds["domain"]))
-    print("unique domains:", unique_domains_count)
+    print("unique domains (those without text have been removed):", unique_domains_count)
 
 
 reference_tokenizer = AutoTokenizer.from_pretrained(config.reference_tokenizer_hf_name)
@@ -96,13 +96,18 @@ def get_text_chunks_with_reference_tokenizer(examples):
     previous_text_split_index = 0
 
     text_chunks = []
+    text_chunk_reference_token_counts = []
 
     for begin_loc in range(0, seq_len, config.reference_tokenizer_chunk_size):
         end_loc = min(begin_loc + config.reference_tokenizer_chunk_size, seq_len - 1)
 
         text_split_index = reference_tokens.offset_mapping[end_loc][1]
         text_chunk = text[previous_text_split_index:text_split_index]
-        text_chunks.append(text_chunk)
+        if text_chunk != "":
+            text_chunks.append(text_chunk)
+            text_chunk_reference_token_counts.append(
+                len(reference_tokenizer(text_chunk).input_ids)
+            )
         previous_text_split_index = text_split_index
 
         if end_loc == seq_len - 1:
@@ -114,6 +119,7 @@ def get_text_chunks_with_reference_tokenizer(examples):
         "text": text_chunks,
         "id": [examples[config.id_column][0]] * len(text_chunks),
         "chunk": list(range(len(text_chunks))),
+        "reference_token_count": text_chunk_reference_token_counts, 
     }
 
     if config.domain_column is not None:
@@ -127,7 +133,7 @@ feature_dict =  {
         "text": Value("string"),
         "id": Value("string"),
         "chunk": Value("int32"),
-        "domain": Value("string"),
+        "reference_token_count": Value("int32"),
     }
 
 if config.domain_column is not None:

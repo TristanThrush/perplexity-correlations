@@ -1,12 +1,12 @@
 chunked_pretraining_data_sample: chunked_datasets/chunked_rpjv2_sample
-raw_job_output_dir: raw_error_and_bpb_job_outputs/rpjv2_jobs
-error_output_csv: error_csvs/error_matrix.csv
-bpb_output_csv: bpb_csvs/chunked_rpjv2_sample_bpb_matrix.csv
+raw_job_output_dir: raw_error_and_bpb_job_outputs/basic_test_rpjv2_jobs
+error_output_csv: error_csvs/basic_test_error_matrix.csv
+bpb_output_csv: bpb_csvs/basic_test_chunked_rpjv2_sample_bpb_matrix.csv
 evals:
   - eleuther_name: arc_easy
     metric: acc,none
     lower_is_better: false
 llms:
-  - family: gpt2
+  - family: aiswedenmodels
     hf_names:
-      - gpt2
+      - AI-Sweden-Models/gpt-sw3-126m

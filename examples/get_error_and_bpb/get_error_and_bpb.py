@@ -29,7 +29,7 @@ parser.add_argument("--eleuther_eval_lower_is_better", nargs="*", required=False
 parser.add_argument("--chunked_pretraining_data_sample", required=False)
 parser.add_argument("--raw_job_output_path", required=False)
 parser.add_argument("--error_output_csv", required=False)
-parser.add_argument("--bpb_output_csv", required=False)
+parser.add_argument("--bpb_output_csv_prefix", required=False)
 
 parser.add_argument("--hf_llm_revision", default="main")
 parser.add_argument("--num_loss_shards", type=int, default=50)
@@ -37,7 +37,7 @@ parser.add_argument("--resume", action="store_true")
 parser.add_argument("--save_model_info", action="store_true")
 parser.add_argument("--device", default="cuda")
 parser.add_argument("--half_precision", action="store_true")
-parser.add_argument("--hf_llm_batch_size", type=int, default=1)
+parser.add_argument("--hf_llm_batch_size", type=int, default=4)
 
 args = parser.parse_args()
 
@@ -70,7 +70,7 @@ if args.config is not None:
 '{output_path}' '{family.family}' '{llm}' '{eleuther_eval_names}' \
 '{eleuther_eval_metrics}' '{eleuther_eval_lower_is_better}' \
 '{config.chunked_pretraining_data_sample}' '{config.error_output_csv}' \
-'{config.bpb_output_csv}'"
+'{config.bpb_output_csv_prefix}'"
             subprocess.call(command, shell=True)
     sys.exit()
 
@@ -83,7 +83,7 @@ if None in (
     args.eleuther_eval_lower_is_better,
     args.chunked_pretraining_data_sample,
     args.error_output_csv,
-    args.bpb_output_csv,
+    args.bpb_output_csv_prefix,
 ):
     parser.error(
         "Arguments:\n\
@@ -93,7 +93,7 @@ if None in (
 --eleuther_eval_lower_is_better\n\
 --chunked_pretraining_data_sample\n\
 --error_output_csv\n\
---bpb_output_csv\n\
+--bpb_output_csv_prefix\n\
 are required if --config is not provided."
     )
 
@@ -198,6 +198,11 @@ for i in range(args.num_loss_shards):
         shards.append(shard)
     else:
         shard = ds.shard(num_shards=args.num_loss_shards, index=i)
+        
+        # For efficiency - we want to avoid as much padding as possible
+        shard = shard.sort(
+            ["reference_token_count"], reverse=[True]
+        )
 
         shard = shard.map(
             lambda example: get_loss_hf(example),
@@ -210,7 +215,7 @@ for i in range(args.num_loss_shards):
 
         shards.append(shard)
 
-bpb_df = concatenate_datasets(shards).to_pandas()
+loss_df = concatenate_datasets(shards).to_pandas()
 
 # Convert to BPB at the end, so raw losses, token counts, and byte counts are still
 # stored in the loss shard datasets in case they would be useful in the future.
@@ -218,10 +223,33 @@ bpb_df = concatenate_datasets(shards).to_pandas()
 # shared matrix.
 new_column_name = str((args.hf_llm_family, args.hf_llm_name))
 
-bpb_df[new_column_name] = (
-    (bpb_df["token_count"] / bpb_df["byte_count"]) * bpb_df["loss"] / np.log(2)
-)
-bpb_df.drop(columns=["token_count", "byte_count", "loss"], inplace=True)
+def weighted_mean(df, value_col, weight_col):
+    return (df[value_col] * df[weight_col]).sum() / df[weight_col].sum()
+
+def aggregate_by_domain_or_id(df, agg_groups):
+    result = df.groupby(agg_groups).agg(
+        loss=("loss", lambda x: weighted_mean(df.loc[x.index], "loss", "token_count")),
+        token_count=("token_count", "sum"),
+        byte_count=("byte_count", "sum")
+    ).reset_index()
+    print(result)
+    return result
+
+def get_bpb(df):
+    df = df.copy()
+    df[new_column_name] = (df["token_count"] / df["byte_count"]) * df["loss"] / np.log(2)
+    df.drop(columns=["token_count", "byte_count", "loss"], inplace=True)
+    return df
+
+bpb_dfs = [get_bpb(loss_df)]
+
+if "domain" in loss_df.columns:
+    agg_groups = [["chunk", "id", "domain"], ["id", "domain"], ["domain"]]
+else:
+    agg_groups = [["chunk", "id"], ["id"]]
+
+for agg_group in agg_groups[1:]:
+    bpb_dfs.append(get_bpb(aggregate_by_domain_or_id(loss_df, agg_group)))
 
 
 # Function to safely read, modify, and write to shared CSV file.
@@ -276,13 +304,21 @@ def get_lockfile_pathname(pathname):
     lockfile_pathname = os.path.join(directory, invisible_filename)
     return lockfile_pathname
 
-bpb_lock_file_pathname = get_lockfile_pathname(args.bpb_output_csv)
-update_csv_async(
-    args.bpb_output_csv,
-    bpb_lock_file_pathname,
-    bpb_df,
-    ["id", "chunk", "domain"] if "domain" in bpb_df.columns else ["id", "chunk"],
-)
+for index in range(len(agg_groups)):
+    bpb_df = bpb_dfs[index]
+    agg_group = agg_groups[index]
+    bpb_output_csv_name = f"{args.bpb_output_csv_prefix}_{agg_group[0]}.csv"
+    bpb_lock_file_pathname = get_lockfile_pathname(bpb_output_csv_name)
+    update_csv_async(
+        bpb_output_csv_name,
+        bpb_lock_file_pathname,
+        bpb_df,
+        agg_group,
+    )
+
+# Check to see that there are actually evals specified before continuing.
+if len(args.eleuther_eval_names) == 0:
+    sys.exit()
 
 # Now we evaluate the model on the desired tasks and add the results to the big
 # shared eval matrix.

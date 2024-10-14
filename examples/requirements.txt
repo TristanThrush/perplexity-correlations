@@ -17,3 +17,5 @@ flash-attn==2.6.3
 scikit-learn==1.5.2
 huggingface-hub==0.25.1
 numpy==1.26.4
+causal-conv1d==1.4.0
+mamba-ssm==2.2.2
