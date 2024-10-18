@@ -5,7 +5,7 @@ This directory has two python scripts:
 * `chunk_pretraining_data_sample.py`, which allows you to specify a training data sample that it then chunks into pieces that fit into the contexts of LLMs that you care about.
 * `get_error_and_bpb.py`, which allows you to specify LLMs, benchmarks, and a chunked dataset. This information is used to extract bits-per-byte values and benchmark errors that feed into our perplexity-correlations package.
 
-## Chunk Pretraining Data
+## Chunk a Sample of Some Pretraining Data
 
 The first step is deciding what data you want to get a bunch of BPB
 values on. Ideally, this should be an i.i.d. sample from a dataset that you want to pretrain with.
@@ -82,7 +82,7 @@ scheduler too. You can monitor progress or errors by checking this log. Common i
 * A model download (particularly for Meta) may require that you are logged into your Hugging Face account via huggingface-cli and that you have already accepted the terms of use by going to that model's Hugging Face page.
 * A model may run out of GPU memory. In `get_error_and_bpb.py` you can lower the default number for `--hf_llm_batch_size` and then try again.
 
-## Existing job outputs for you to play with
+## Existing Job Outputs for You to Play With
 
 We've run the two scripts in this directory already, for all example configs!
 Due to size, we don't include the chunked datasets, or the cache files for each LLM job.
