@@ -27,13 +27,6 @@ pretraining dataset has a lot of text and required too much memory to load befor
 
 ## Get Errors and BPB
 
-Reading further in this section, which talks about cluster jobs, might make you feel like the
-"Perplexity Correlations" paradigm is actually a bit compute intensive. But relative to pretraining
-a big LLM, the compute that we expend here is practically a constant factor: we can take a fixed
-sample from a pretraining dataset, much smaller than the actual pretraining dataset, and then a fixed
-list of LLMs. Then we compute the LLMs' BPB values on this pretraining data sample, along with their
-errors on some benchmarks. Now, let's continue:
-
 The next step is to actually compute the benchmark error vectors and the BPB matrix that we
 need for `perplexity-correlations` to work. We do this with the `get_error_and_bpb.py` script, which
 takes in a config that you can use to specify the path to the chunked dataset
