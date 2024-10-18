@@ -73,7 +73,9 @@ if args.config is not None:
                 revision_suffix = ""
                 if revision != "main":
                     revision_suffix = "_" + revision
-                output_path = os.path.join(config.raw_job_output_dir, llm.replace("/", "-") + revision_suffix)
+                output_path = os.path.join(
+                    config.raw_job_output_dir, llm.replace("/", "-") + revision_suffix
+                )
                 os.makedirs(output_path, exist_ok=True)
                 command = f"bash error_and_bpb_scheduler.sh \
 '{output_path}' '{family.family}' '{llm}' '{revision}' '{eleuther_eval_names}' \
@@ -111,12 +113,14 @@ os.makedirs(args.raw_job_output_path, exist_ok=True)
 ds = load_from_disk(args.chunked_pretraining_data_sample)
 
 tokenizer = AutoTokenizer.from_pretrained(
-    args.hf_llm_name, revision=args.hf_llm_revision, trust_remote_code=True,
+    args.hf_llm_name,
+    revision=args.hf_llm_revision,
+    trust_remote_code=True,
 )
 
 if not hasattr(tokenizer, "pad_token") or tokenizer.pad_token is None:
     if not hasattr(tokenizer, "eos_token") or tokenizer.eos_token is None:
-        tokenizer.pad_token = '<|endoftext|>'
+        tokenizer.pad_token = "<|endoftext|>"
     else:
         tokenizer.pad_token = tokenizer.eos_token
 
@@ -207,11 +211,9 @@ for i in range(args.num_loss_shards):
         shards.append(shard)
     else:
         shard = ds.shard(num_shards=args.num_loss_shards, index=i)
-        
+
         # For efficiency - we want to avoid as much padding as possible
-        shard = shard.sort(
-            ["reference_token_count"], reverse=[True]
-        )
+        shard = shard.sort(["reference_token_count"], reverse=[True])
 
         shard = shard.map(
             lambda example: get_loss_hf(example),
@@ -235,23 +237,36 @@ if args.hf_llm_revision != "main":
     revision_suffix = "_" + args.hf_llm_revision
 new_column_name = str((args.hf_llm_family, args.hf_llm_name + revision_suffix))
 
+
 def weighted_mean(df, value_col, weight_col):
     return (df[value_col] * df[weight_col]).sum() / df[weight_col].sum()
 
+
 def aggregate_by_domain_or_id(df, agg_groups):
-    result = df.dropna(axis=0, how='any')
-    result = result.groupby(agg_groups).agg(
-        loss=("loss", lambda x: weighted_mean(result.loc[x.index], "loss", "token_count")),
-        token_count=("token_count", "sum"),
-        byte_count=("byte_count", "sum")
-    ).reset_index()
+    result = df.dropna(axis=0, how="any")
+    result = (
+        result.groupby(agg_groups)
+        .agg(
+            loss=(
+                "loss",
+                lambda x: weighted_mean(result.loc[x.index], "loss", "token_count"),
+            ),
+            token_count=("token_count", "sum"),
+            byte_count=("byte_count", "sum"),
+        )
+        .reset_index()
+    )
     return result
+
 
 def get_bpb(df):
     df = df.copy()
-    df[new_column_name] = (df["token_count"] / df["byte_count"]) * df["loss"] / np.log(2)
+    df[new_column_name] = (
+        (df["token_count"] / df["byte_count"]) * df["loss"] / np.log(2)
+    )
     df.drop(columns=["token_count", "byte_count", "loss"], inplace=True)
     return df
+
 
 bpb_dfs = [get_bpb(loss_df)]
 
@@ -316,6 +331,7 @@ def get_lockfile_pathname(pathname):
     lockfile_pathname = os.path.join(directory, invisible_filename)
     return lockfile_pathname
 
+
 for index in range(len(agg_groups)):
     bpb_df = bpb_dfs[index]
     agg_group = agg_groups[index]
@@ -331,6 +347,7 @@ for index in range(len(agg_groups)):
 # Check to see that there are actually evals specified before continuing.
 if len(args.eleuther_eval_names) == 0:
     sys.exit()
+
 
 # Now we evaluate the model on the desired tasks and add the results to the big
 # shared eval matrix.
@@ -367,4 +384,6 @@ for index in range(len(args.eleuther_eval_names)):
 
 error_df = pd.DataFrame.from_dict(error_dict)
 error_lock_file_pathname = get_lockfile_pathname(args.error_output_csv)
-update_csv_async(args.error_output_csv, error_lock_file_pathname, error_df, ["benchmark"])
+update_csv_async(
+    args.error_output_csv, error_lock_file_pathname, error_df, ["benchmark"]
+)

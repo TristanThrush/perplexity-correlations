@@ -14,9 +14,7 @@ from perplexity_correlations.estimation import (
     sign_sign,
     spearmanr,
 )
-from perplexity_correlations.projection import (
-    linear
-)
+from perplexity_correlations.projection import linear
 import numpy as np
 import os
 
@@ -58,15 +56,26 @@ X_df, labels_df = get_X(pd.read_csv(config.bpb_csv))
 
 ds = load_from_disk(config.chunked_pretraining_data_sample)
 
-tokenizer = AutoTokenizer.from_pretrained(config.hf_tokenizer_name, clean_up_tokenization_spaces=True)
-ds = ds.map(lambda example: {"token_count": len(tokenizer(example["text"], truncation=False, padding=False)["input_ids"])}, num_proc=config.num_proc)
+tokenizer = AutoTokenizer.from_pretrained(
+    config.hf_tokenizer_name, clean_up_tokenization_spaces=True
+)
+ds = ds.map(
+    lambda example: {
+        "token_count": len(
+            tokenizer(example["text"], truncation=False, padding=False)["input_ids"]
+        )
+    },
+    num_proc=config.num_proc,
+)
 
 aggregation_columns = [
     column for column in ["id", "chunk", "domain"] if column in labels_df.columns
 ]
 
 token_count_df = ds.to_pandas()
-token_count_df = token_count_df.groupby(aggregation_columns, as_index=False).sum(numeric_only=True)
+token_count_df = token_count_df.groupby(aggregation_columns, as_index=False).sum(
+    numeric_only=True
+)
 
 ordered_token_counts = pd.merge(
     labels_df,
@@ -75,7 +84,9 @@ ordered_token_counts = pd.merge(
     how="left",
 )["token_count"].to_numpy()
 
-thresholds = (ordered_token_counts/ordered_token_counts.sum())*(1/config.desired_filter_ratio)
+thresholds = (ordered_token_counts / ordered_token_counts.sum()) * (
+    1 / config.desired_filter_ratio
+)
 
 ds = ds.train_test_split(test_size=0.05)
 
@@ -101,13 +112,17 @@ for group in config.target_benchmark_groups:
 
     # Just computing this as something interesting to know
     ten_largest_indices = np.argpartition(estimate, -10)[-10:]
-    top_ten_from_estimate = labels_df[aggregation_columns].loc[ten_largest_indices].to_dict()
+    top_ten_from_estimate = (
+        labels_df[aggregation_columns].loc[ten_largest_indices].to_dict()
+    )
 
     projected_estimate = linear(estimate, thresholds)
-    
+
     # Just computing this as something interesting to know
     projected_ten_largest_indices = np.argpartition(projected_estimate, -10)[-10:]
-    top_ten_from_projected_estimate = labels_df[aggregation_columns].loc[projected_ten_largest_indices].to_dict()
+    top_ten_from_projected_estimate = (
+        labels_df[aggregation_columns].loc[projected_ten_largest_indices].to_dict()
+    )
 
     labels = np.array(["__label__exclude"] * len(projected_estimate))
     labels[np.nonzero(projected_estimate)] = "__label__include"
@@ -131,7 +146,14 @@ for group in config.target_benchmark_groups:
         on=aggregation_columns,
         how="inner",
     )
-    train_df = train_df.groupby(config.fasttext_label_aggregation, as_index=False).apply(lambda group: group.apply(lambda col: fasttext_label_aggregation(col, col.name)), include_groups=False)
+    train_df = train_df.groupby(
+        config.fasttext_label_aggregation, as_index=False
+    ).apply(
+        lambda group: group.apply(
+            lambda col: fasttext_label_aggregation(col, col.name)
+        ),
+        include_groups=False,
+    )
     train_df = train_df[["label", "text", "token_count"]]
 
     test_df = ds["test"].to_pandas()
@@ -141,7 +163,12 @@ for group in config.target_benchmark_groups:
         on=aggregation_columns,
         how="inner",
     )
-    test_df = test_df.groupby(config.fasttext_label_aggregation, as_index=False).apply(lambda group: group.apply(lambda col: fasttext_label_aggregation(col, col.name)), include_groups=False)
+    test_df = test_df.groupby(config.fasttext_label_aggregation, as_index=False).apply(
+        lambda group: group.apply(
+            lambda col: fasttext_label_aggregation(col, col.name)
+        ),
+        include_groups=False,
+    )
     test_df = test_df[["label", "text", "token_count"]]
 
     os.makedirs("fasttext_datasets", exist_ok=True)
@@ -158,11 +185,10 @@ for group in config.target_benchmark_groups:
     model = fasttext.train_supervised(
         input=f"fasttext_datasets/{group.name}.train", wordNgrams=2
     )
-    
+
     os.makedirs("fasttext_models", exist_ok=True)
     # Save the model
     model.save_model(f"fasttext_models/{group.name}.bin")
-
 
     # Evaluate the model.
     test_results = {}
@@ -172,16 +198,32 @@ for group in config.target_benchmark_groups:
         labels, probabilities = model.predict(text.replace("\n", " "), k=1)
         return labels[0]
 
-
     test_df["pred"] = test_df["text"].apply(predict_label)
     test_results["num_samples"] = len(test_df)
-    test_results["f1"] = float(f1_score(test_df["label"], test_df["pred"], average="binary", pos_label="__label__include"))
-    test_results["precision@1"] = float(precision_score(
-        test_df["label"], test_df["pred"], average="binary", pos_label="__label__include"
-    ))
-    test_results["recall@1"] = float(recall_score(
-        test_df["label"], test_df["pred"], average="binary", pos_label="__label__include"
-    ))
+    test_results["f1"] = float(
+        f1_score(
+            test_df["label"],
+            test_df["pred"],
+            average="binary",
+            pos_label="__label__include",
+        )
+    )
+    test_results["precision@1"] = float(
+        precision_score(
+            test_df["label"],
+            test_df["pred"],
+            average="binary",
+            pos_label="__label__include",
+        )
+    )
+    test_results["recall@1"] = float(
+        recall_score(
+            test_df["label"],
+            test_df["pred"],
+            average="binary",
+            pos_label="__label__include",
+        )
+    )
 
     # Now, a fine-grained eval: see what language(s) our model wants to select.
     language_id_model_path = hf_hub_download(
@@ -189,25 +231,31 @@ for group in config.target_benchmark_groups:
     )
     language_id_model = fasttext.load_model(language_id_model_path)
 
-
     def predict_language(text):
         labels, probabilities = language_id_model.predict(text.replace("\n", " "), k=1)
         return labels[0]
 
-
     test_df["language"] = test_df["text"].apply(predict_language)
 
-    test_results["total_language_dist"] = (test_df.groupby("language")["token_count"].sum() / test_df["token_count"].sum()).to_dict()
+    test_results["total_language_dist"] = (
+        test_df.groupby("language")["token_count"].sum() / test_df["token_count"].sum()
+    ).to_dict()
 
     test_df_selected = test_df[test_df["pred"] == "__label__include"]
-    test_results["selected_language_dist"] = (test_df_selected.groupby("language")["token_count"].sum() / test_df_selected["token_count"].sum()).to_dict()
+    test_results["selected_language_dist"] = (
+        test_df_selected.groupby("language")["token_count"].sum()
+        / test_df_selected["token_count"].sum()
+    ).to_dict()
 
     test_df_gold_selected = test_df[test_df["label"] == "__label__include"]
-    test_results["gold_language_dist"] = (test_df_gold_selected.groupby("language")["token_count"].sum() / test_df_gold_selected["token_count"].sum()).to_dict()
+    test_results["gold_language_dist"] = (
+        test_df_gold_selected.groupby("language")["token_count"].sum()
+        / test_df_gold_selected["token_count"].sum()
+    ).to_dict()
 
     test_results["top_ten_from_estimate"] = top_ten_from_estimate
     test_results["top_ten_from_projected_estimate"] = top_ten_from_projected_estimate
-    
+
     os.makedirs("fasttext_info", exist_ok=True)
     with open(f"fasttext_info/{group.name}.yml", "w") as file:
         yaml.dump(test_results, file)

@@ -7,7 +7,6 @@ import argparse
 from types import SimpleNamespace
 import numpy as np
 from collections import defaultdict, Counter
-import random
 
 np.random.seed(42)
 
@@ -79,7 +78,9 @@ if config.enforce_pages_per_domain:
     ds = ds.select(balanced_indices)
 
     unique_domains_count = len(set(ds["domain"]))
-    print("unique domains (those without text have been removed):", unique_domains_count)
+    print(
+        "unique domains (those without text have been removed):", unique_domains_count
+    )
 
 
 reference_tokenizer = AutoTokenizer.from_pretrained(config.reference_tokenizer_hf_name)
@@ -119,7 +120,7 @@ def get_text_chunks_with_reference_tokenizer(examples):
         "text": text_chunks,
         "id": [examples[config.id_column][0]] * len(text_chunks),
         "chunk": list(range(len(text_chunks))),
-        "reference_token_count": text_chunk_reference_token_counts, 
+        "reference_token_count": text_chunk_reference_token_counts,
     }
 
     if config.domain_column is not None:
@@ -129,12 +130,12 @@ def get_text_chunks_with_reference_tokenizer(examples):
     return chunked_examples
 
 
-feature_dict =  {
-        "text": Value("string"),
-        "id": Value("string"),
-        "chunk": Value("int32"),
-        "reference_token_count": Value("int32"),
-    }
+feature_dict = {
+    "text": Value("string"),
+    "id": Value("string"),
+    "chunk": Value("int32"),
+    "reference_token_count": Value("int32"),
+}
 
 if config.domain_column is not None:
     feature_dict["domain"] = Value("string")
