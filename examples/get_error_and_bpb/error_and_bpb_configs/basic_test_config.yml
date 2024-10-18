@@ -1,7 +1,7 @@
 chunked_pretraining_data_sample: chunked_datasets/chunked_rpjv2_sample
 raw_job_output_dir: raw_error_and_bpb_job_outputs/basic_test_rpjv2_jobs
-error_output_csv: error_csvs/basic_test_error_matrix.csv
-bpb_output_csv: bpb_csvs/basic_test_chunked_rpjv2_sample_bpb_matrix.csv
+error_output_csv: error_csvs/basic_test_error.csv
+bpb_output_csv_prefix: bpb_csvs/basic_test_chunked_rpjv2_sample_bpb
 evals:
   - eleuther_name: arc_easy
     metric: acc,none

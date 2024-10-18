@@ -1,0 +1,36 @@
+f1: 0.2646638054363376
+gold_language_dist:
+  __label__eng_Latn: 1.0
+num_samples: 7725
+precision@1: 0.9840425531914894
+recall@1: 0.15289256198347106
+selected_language_dist:
+  __label__eng_Latn: 1.0
+top_ten_from_estimate:
+  id:
+    50: Diamonds in the Rough by John Pastier
+    69: Goings On About Town by Jim Holt
+    83: I'm a Stranger Here Myself by Reynolds, Mack
+    99: Let Si Get This by David Plotz
+    121: New work order by Geraldine Bedell
+    156: Spaceman on a Spree by Reynolds, Mack
+    220: The Reluctant Heroes by Robinson, Frank M.
+    236: The Winning of the Moon by Neville, Kris
+    254: War and Pieces by David Edelstein
+    258: What cities in the post-Brexit era could learn from a 14th-century trading
+      bloc by Christopher Beanland
+top_ten_from_projected_estimate:
+  id:
+    8: A Filbert Is a Nut by Raphael, Rick
+    50: Diamonds in the Rough by John Pastier
+    69: Goings On About Town by Jim Holt
+    83: I'm a Stranger Here Myself by Reynolds, Mack
+    99: Let Si Get This by David Plotz
+    121: New work order by Geraldine Bedell
+    143: Reading the Inaugurals by Herbert Stein
+    145: Republican Shakeout by William Saletan
+    254: War and Pieces by David Edelstein
+    258: What cities in the post-Brexit era could learn from a 14th-century trading
+      bloc by Christopher Beanland
+total_language_dist:
+  __label__eng_Latn: 1.0

@@ -37,7 +37,7 @@ parser.add_argument("--resume", action="store_true")
 parser.add_argument("--save_model_info", action="store_true")
 parser.add_argument("--device", default="cuda")
 parser.add_argument("--half_precision", action="store_true")
-parser.add_argument("--hf_llm_batch_size", type=int, default=4)
+parser.add_argument("--hf_llm_batch_size", type=int, default=2)
 
 args = parser.parse_args()
 
@@ -64,14 +64,23 @@ if args.config is not None:
     for family in config.llms:
         family = SimpleNamespace(**family)
         for llm in family.hf_names:
-            output_path = os.path.join(config.raw_job_output_dir, llm.replace("/", "-"))
-            os.makedirs(output_path, exist_ok=True)
-            command = f"bash error_and_bpb_scheduler.sh \
-'{output_path}' '{family.family}' '{llm}' '{eleuther_eval_names}' \
+            revisions = ["main"]
+            if isinstance(llm, dict):
+                revisions = llm["revisions"]
+                llm = llm["name"]
+
+            for revision in revisions:
+                revision_suffix = ""
+                if revision != "main":
+                    revision_suffix = "_" + revision
+                output_path = os.path.join(config.raw_job_output_dir, llm.replace("/", "-") + revision_suffix)
+                os.makedirs(output_path, exist_ok=True)
+                command = f"bash error_and_bpb_scheduler.sh \
+'{output_path}' '{family.family}' '{llm}' '{revision}' '{eleuther_eval_names}' \
 '{eleuther_eval_metrics}' '{eleuther_eval_lower_is_better}' \
 '{config.chunked_pretraining_data_sample}' '{config.error_output_csv}' \
 '{config.bpb_output_csv_prefix}'"
-            subprocess.call(command, shell=True)
+                subprocess.call(command, shell=True)
     sys.exit()
 
 
@@ -102,7 +111,7 @@ os.makedirs(args.raw_job_output_path, exist_ok=True)
 ds = load_from_disk(args.chunked_pretraining_data_sample)
 
 tokenizer = AutoTokenizer.from_pretrained(
-    args.hf_llm_name, revision=args.hf_llm_revision, trust_remote_code=True
+    args.hf_llm_name, revision=args.hf_llm_revision, trust_remote_code=True,
 )
 
 if not hasattr(tokenizer, "pad_token") or tokenizer.pad_token is None:
@@ -221,18 +230,21 @@ loss_df = concatenate_datasets(shards).to_pandas()
 # stored in the loss shard datasets in case they would be useful in the future.
 # Name the bpb column with the name and family of the LLM, so we can merge it into the
 # shared matrix.
-new_column_name = str((args.hf_llm_family, args.hf_llm_name))
+revision_suffix = ""
+if args.hf_llm_revision != "main":
+    revision_suffix = "_" + args.hf_llm_revision
+new_column_name = str((args.hf_llm_family, args.hf_llm_name + revision_suffix))
 
 def weighted_mean(df, value_col, weight_col):
     return (df[value_col] * df[weight_col]).sum() / df[weight_col].sum()
 
 def aggregate_by_domain_or_id(df, agg_groups):
-    result = df.groupby(agg_groups).agg(
-        loss=("loss", lambda x: weighted_mean(df.loc[x.index], "loss", "token_count")),
+    result = df.dropna(axis=0, how='any')
+    result = result.groupby(agg_groups).agg(
+        loss=("loss", lambda x: weighted_mean(result.loc[x.index], "loss", "token_count")),
         token_count=("token_count", "sum"),
         byte_count=("byte_count", "sum")
     ).reset_index()
-    print(result)
     return result
 
 def get_bpb(df):

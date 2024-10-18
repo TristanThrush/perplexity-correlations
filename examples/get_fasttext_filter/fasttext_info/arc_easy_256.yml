@@ -1,0 +1,105 @@
+f1: 0.13052239962796466
+gold_language_dist:
+  __label__bod_Tibt: 1.7604011836937558e-06
+  __label__ces_Latn: 1.1736007891291707e-06
+  __label__deu_Latn: 0.0015691042550657012
+  __label__eng_Latn: 0.986021827801077
+  __label__fin_Latn: 8.567285760642945e-05
+  __label__fra_Latn: 0.0010433311015358327
+  __label__hun_Latn: 0.00023354655703670496
+  __label__ind_Latn: 5.3398835905377265e-05
+  __label__ita_Latn: 0.00038552785922893256
+  __label__kor_Hang: 0.002517373692682071
+  __label__krc_Cyrl: 0.00034151782963658865
+  __label__lit_Latn: 0.00010503727062706076
+  __label__ltz_Latn: 1.2909608680420876e-05
+  __label__lvs_Latn: 4.6357231170602236e-05
+  __label__oci_Latn: 5.281203551081268e-06
+  __label__por_Latn: 4.6944031565166825e-05
+  __label__spa_Latn: 0.0008003957381860944
+  __label__tur_Latn: 0.00013085648798790252
+  __label__vie_Latn: 0.00013789809272267756
+  __label__yue_Hant: 0.006460085543761519
+num_samples: 55033
+precision@1: 0.6557632398753894
+recall@1: 0.0724737476329833
+selected_language_dist:
+  __label__eng_Latn: 0.9634950382914464
+  __label__ita_Latn: 0.0015977240858591306
+  __label__kor_Hang: 0.019516503074102038
+  __label__lit_Latn: 0.0011932369755150469
+  __label__por_Latn: 0.0005393161471254449
+  __label__yue_Hant: 0.013658181425951894
+top_ten_from_estimate:
+  domain:
+    306: apps.trb.org
+    403: asvabtestpro.com
+    3593: premiumessaywriters.com
+    3985: science.nasa.gov
+    4437: thefloristic.com
+    5530: www.buddyconcept.in
+    6201: www.edusofttech.com
+    7701: www.myheartliveshere.com
+    8491: www.scientistcindy.com
+    9057: www.trb.org
+top_ten_from_projected_estimate:
+  domain:
+    1001: clearafred.wits.ac.za
+    2257: ijbnpa.biomedcentral.com
+    2726: link.springer.com
+    2770: lookformedical.com
+    2899: mediafocusuk.com
+    4203: springerplus.springeropen.com
+    5627: www.cchpca.org
+    7518: www.mdpi.com
+    8072: www.petguide.com
+    8488: www.scielo.org.za
+total_language_dist:
+  __label__arb_Arab: 8.732610606954861e-07
+  __label__ast_Latn: 3.0273050104110185e-06
+  __label__azb_Arab: 7.3353929098420826e-06
+  __label__bod_Tibt: 1.1643480809273147e-06
+  __label__cat_Latn: 6.939514562326796e-05
+  __label__ceb_Latn: 6.403914445100231e-07
+  __label__ces_Latn: 1.4845438031823262e-05
+  __label__dan_Latn: 1.9211743335300693e-06
+  __label__deu_Latn: 0.11093239014928921
+  __label__eng_Latn: 0.6050726919972144
+  __label__eus_Latn: 1.3972176971127776e-06
+  __label__fin_Latn: 8.557958394815764e-06
+  __label__fra_Latn: 0.10883638895140792
+  __label__gaz_Latn: 2.3286961618546295e-07
+  __label__gle_Latn: 5.239566364172916e-07
+  __label__glg_Latn: 4.4303444479284324e-05
+  __label__heb_Hebr: 0.00011631837328463875
+  __label__hun_Latn: 0.00010735289306149842
+  __label__ind_Latn: 1.0420915324299467e-05
+  __label__ita_Latn: 0.06540964035965781
+  __label__kab_Latn: 1.746522121390972e-07
+  __label__kal_Latn: 1.7465221213909722e-06
+  __label__kor_Hang: 0.0018669157129588565
+  __label__krc_Cyrl: 0.00031088093760759305
+  __label__lit_Latn: 1.106130676880949e-05
+  __label__lmo_Latn: 6.636784061285694e-06
+  __label__ltz_Latn: 1.7698090830095184e-05
+  __label__lvs_Latn: 4.599174919662893e-06
+  __label__nld_Latn: 1.6300873132982405e-05
+  __label__nno_Latn: 1.1643480809273147e-07
+  __label__oci_Latn: 1.571869909251875e-05
+  __label__pol_Latn: 2.2995874598314465e-05
+  __label__por_Latn: 2.1132917668830763e-05
+  __label__roh_Latn: 4.057753062031692e-05
+  __label__ron_Latn: 8.150436566491203e-07
+  __label__scn_Latn: 1.1643480809273147e-06
+  __label__slv_Latn: 7.859349546259374e-06
+  __label__spa_Latn: 0.10147677760148253
+  __label__swe_Latn: 1.4554351011591435e-06
+  __label__tgl_Latn: 3.493044242781944e-07
+  __label__tha_Thai: 4.7738271318019905e-06
+  __label__tur_Latn: 1.298248110233956e-05
+  __label__vec_Latn: 8.726788866550225e-05
+  __label__vie_Latn: 5.711127336948479e-05
+  __label__war_Latn: 2.9108702023182867e-07
+  __label__yor_Latn: 1.4554351011591434e-05
+  __label__yue_Hant: 0.005337720907395089
+  __label__zsm_Latn: 2.09000480526453e-05

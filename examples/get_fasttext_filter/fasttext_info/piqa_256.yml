@@ -1,0 +1,98 @@
+f1: 0.04322448335699637
+gold_language_dist:
+  __label__bod_Tibt: 1.7406622175340386e-06
+  __label__ces_Latn: 1.1604414783560258e-06
+  __label__deu_Latn: 0.0012973735728020368
+  __label__eng_Latn: 0.9937475413146177
+  __label__fra_Latn: 0.0004009325307720069
+  __label__hun_Latn: 0.00010734083674793239
+  __label__ita_Latn: 2.9011036958900644e-06
+  __label__kor_Hang: 0.001085012782262884
+  __label__lit_Latn: 1.1604414783560258e-06
+  __label__ltz_Latn: 1.2764856261916284e-05
+  __label__lvs_Latn: 4.583743839506302e-05
+  __label__oci_Latn: 5.221986652602116e-06
+  __label__spa_Latn: 0.0005036316016065152
+  __label__yue_Hant: 0.002581402068602979
+  __label__zsm_Latn: 0.00020597836240819457
+num_samples: 55033
+precision@1: 0.6523809523809524
+recall@1: 0.02235274922499592
+selected_language_dist:
+  __label__dan_Latn: 0.00012643290627107216
+  __label__eng_Latn: 0.9627655091031693
+  __label__kor_Hang: 0.012179703304113283
+  __label__yue_Hant: 0.024928354686446393
+top_ten_from_estimate:
+  domain:
+    646: blog.web20classroom.org
+    1021: coachrobmuller.blogspot.com
+    3391: original-ideas.net
+    4437: thefloristic.com
+    4854: weather.ok.gov
+    6366: www.eyedolatryblog.com
+    7637: www.montessoridaoshi.com
+    7653: www.mossyoak.com
+    8061: www.pennekamplibrary.com
+    8959: www.thescientificflyangler.com
+top_ten_from_projected_estimate:
+  domain:
+    21: 2gringos.blogspot.com
+    749: buildingcreativebridges.wordpress.com
+    2676: lesliekenton.com
+    3269: notdabblinginnormal.wordpress.com
+    5627: www.cchpca.org
+    5874: www.counselingwashington.com
+    6157: www.ecb.europa.eu
+    8072: www.petguide.com
+    8166: www.preceptaustin.org
+    9373: www.wmtc.ca
+total_language_dist:
+  __label__arb_Arab: 8.732610606954861e-07
+  __label__ast_Latn: 3.0273050104110185e-06
+  __label__azb_Arab: 7.3353929098420826e-06
+  __label__bod_Tibt: 1.1643480809273147e-06
+  __label__cat_Latn: 6.939514562326796e-05
+  __label__ceb_Latn: 6.403914445100231e-07
+  __label__ces_Latn: 1.4845438031823262e-05
+  __label__dan_Latn: 1.9211743335300693e-06
+  __label__deu_Latn: 0.11093239014928921
+  __label__eng_Latn: 0.6050726919972144
+  __label__eus_Latn: 1.3972176971127776e-06
+  __label__fin_Latn: 8.557958394815764e-06
+  __label__fra_Latn: 0.10883638895140792
+  __label__gaz_Latn: 2.3286961618546295e-07
+  __label__gle_Latn: 5.239566364172916e-07
+  __label__glg_Latn: 4.4303444479284324e-05
+  __label__heb_Hebr: 0.00011631837328463875
+  __label__hun_Latn: 0.00010735289306149842
+  __label__ind_Latn: 1.0420915324299467e-05
+  __label__ita_Latn: 0.06540964035965781
+  __label__kab_Latn: 1.746522121390972e-07
+  __label__kal_Latn: 1.7465221213909722e-06
+  __label__kor_Hang: 0.0018669157129588565
+  __label__krc_Cyrl: 0.00031088093760759305
+  __label__lit_Latn: 1.106130676880949e-05
+  __label__lmo_Latn: 6.636784061285694e-06
+  __label__ltz_Latn: 1.7698090830095184e-05
+  __label__lvs_Latn: 4.599174919662893e-06
+  __label__nld_Latn: 1.6300873132982405e-05
+  __label__nno_Latn: 1.1643480809273147e-07
+  __label__oci_Latn: 1.571869909251875e-05
+  __label__pol_Latn: 2.2995874598314465e-05
+  __label__por_Latn: 2.1132917668830763e-05
+  __label__roh_Latn: 4.057753062031692e-05
+  __label__ron_Latn: 8.150436566491203e-07
+  __label__scn_Latn: 1.1643480809273147e-06
+  __label__slv_Latn: 7.859349546259374e-06
+  __label__spa_Latn: 0.10147677760148253
+  __label__swe_Latn: 1.4554351011591435e-06
+  __label__tgl_Latn: 3.493044242781944e-07
+  __label__tha_Thai: 4.7738271318019905e-06
+  __label__tur_Latn: 1.298248110233956e-05
+  __label__vec_Latn: 8.726788866550225e-05
+  __label__vie_Latn: 5.711127336948479e-05
+  __label__war_Latn: 2.9108702023182867e-07
+  __label__yor_Latn: 1.4554351011591434e-05
+  __label__yue_Hant: 0.005337720907395089
+  __label__zsm_Latn: 2.09000480526453e-05

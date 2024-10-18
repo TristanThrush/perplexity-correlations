@@ -1,0 +1,36 @@
+f1: 0.0019193857965451055
+gold_language_dist:
+  __label__eng_Latn: 1.0
+num_samples: 7725
+precision@1: 1.0
+recall@1: 0.0009606147934678194
+selected_language_dist:
+  __label__eng_Latn: 1.0
+top_ten_from_estimate:
+  id:
+    2: ' I, Antichrist? by Jeffrey Goldberg'
+    49: Dark Side Lite by David Edelstein
+    61: Edward W. Said by A.O. Scott
+    69: Goings On About Town by Jim Holt
+    91: Jinx Ship to the Rescue by Coppel, Alfred
+    99: Let Si Get This by David Plotz
+    107: Mars Confidential by Browne, Howard
+    143: Reading the Inaugurals by Herbert Stein
+    255: Warrior Queens by David Edelstein
+    258: What cities in the post-Brexit era could learn from a 14th-century trading
+      bloc by Christopher Beanland
+top_ten_from_projected_estimate:
+  id:
+    1: ' Fight Clubbed by David Plotz'
+    2: ' I, Antichrist? by Jeffrey Goldberg'
+    49: Dark Side Lite by David Edelstein
+    50: Diamonds in the Rough by John Pastier
+    61: Edward W. Said by A.O. Scott
+    69: Goings On About Town by Jim Holt
+    99: Let Si Get This by David Plotz
+    143: Reading the Inaugurals by Herbert Stein
+    145: Republican Shakeout by William Saletan
+    258: What cities in the post-Brexit era could learn from a 14th-century trading
+      bloc by Christopher Beanland
+total_language_dist:
+  __label__eng_Latn: 1.0

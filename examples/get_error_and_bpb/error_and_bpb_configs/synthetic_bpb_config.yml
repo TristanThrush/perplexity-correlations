@@ -1,35 +1,8 @@
-chunked_pretraining_data_sample: chunked_datasets/chunked_rpjv2_sample
-raw_job_output_dir: raw_error_and_bpb_job_outputs/rpjv2_jobs
+chunked_pretraining_data_sample: chunked_datasets/chunked_synthetic
+raw_job_output_dir: raw_error_and_bpb_job_outputs/synthetic_jobs
 error_output_csv: error_csvs/error.csv
-bpb_output_csv_prefix: bpb_csvs/chunked_rpjv2_sample_bpb
-evals:
-  - eleuther_name: arc_easy
-    metric: acc,none
-    lower_is_better: false
-  - eleuther_name: piqa
-    metric: acc,none
-    lower_is_better: false
-  - eleuther_name: sciq
-    metric: acc,none
-    lower_is_better: false
-  - eleuther_name: lambada_openai
-    metric: perplexity,none
-    lower_is_better: true
-  - eleuther_name: lambada_standard
-    metric: perplexity,none
-    lower_is_better: true
-  - eleuther_name: lambada_openai_mt_de
-    metric: perplexity,none
-    lower_is_better: true
-  - eleuther_name: lambada_openai_mt_es
-    metric: perplexity,none
-    lower_is_better: true
-  - eleuther_name: lambada_openai_mt_fr
-    metric: perplexity,none
-    lower_is_better: true
-  - eleuther_name: lambada_openai_mt_it
-    metric: perplexity,none
-    lower_is_better: true
+bpb_output_csv_prefix: bpb_csvs/chunked_synthetic_sample_bpb
+evals: []
 llms:
   - family: scb10x
     hf_names:
@@ -106,7 +79,7 @@ llms:
       - Felladrin/Minueza-32M-Base
   - family: ahxt
     hf_names:
-      - ahxt/LiteLlama-460M-1T
+      - LiteLlama-460M-1T
   - family: tencentarc
     hf_names:
       - TencentARC/Mistral_Pro_8B_v0.1

@@ -1,0 +1,16 @@
+reference_tokenizer_hf_name: meta-llama/Llama-2-7b-hf
+reference_tokenizer_chunk_size: 512
+num_proc: 24
+subsample_ratio: 1  # If this is 0 < n < 1, it only uses the first n*100% of the data
+hf_name: zitongyang/entigraph-quality-corpus
+subset: null
+split: train
+text_column: entigraph
+id_column: uid
+domain_column: null
+metadata_column: null
+pages_per_domain: 1
+enforce_pages_per_domain: false
+look_in_metadata_for_domain: false
+look_in_metadata_for_id: false
+output_name: chunked_datasets/chunked_synthetic

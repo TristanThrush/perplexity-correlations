@@ -1,0 +1,85 @@
+f1: 0.7396708095398051
+gold_language_dist:
+  __label__bod_Tibt: 5.739697816389363e-07
+  __label__ces_Latn: 2.755054951866894e-05
+  __label__deu_Latn: 0.7856986245388152
+  __label__eng_Latn: 0.01766105018103007
+  __label__fra_Latn: 0.005718460934468722
+  __label__ita_Latn: 0.1863886510103016
+  __label__kor_Hang: 0.00040235281692889435
+  __label__nld_Latn: 2.2958791265557453e-06
+  __label__por_Latn: 1.1479395632778725e-05
+  __label__spa_Latn: 0.0039052903942713223
+  __label__yue_Hant: 0.0001836703301244596
+num_samples: 34419
+precision@1: 0.7255354200988468
+recall@1: 0.7543679342240494
+selected_language_dist:
+  __label__deu_Latn: 0.9700471225320918
+  __label__ita_Latn: 0.029797261262857925
+  __label__kor_Hang: 8.105010679702405e-06
+  __label__nob_Latn: 5.943674498448431e-06
+  __label__yue_Hant: 0.00014156751987213535
+top_ten_from_estimate:
+  domain:
+    9: 1nselpresse.blogspot.com
+    559: biomedicalhouse.com
+    4003: schariagegner.wordpress.com
+    4696: truthfriends.us
+    5086: www.aerzteblatt.de
+    5568: www.buddha-blog.online
+    6067: www.deutschesgesundheitsportal.de
+    6642: www.global2015.net
+    7116: www.juedische-allgemeine.de
+    7600: www.metropolis-verlag.de
+top_ten_from_projected_estimate:
+  domain:
+    399: asti-blog.de
+    559: biomedicalhouse.com
+    1422: draxler1.wordpress.com
+    1690: eur-lex.europa.eu
+    3285: nordlandurlaub.de
+    3614: predigtforum.com
+    4003: schariagegner.wordpress.com
+    4799: vaeternotruf.de
+    4874: wahrheitenjetzt.de
+    6066: www.deutscher-zukunftspreis.de
+total_language_dist:
+  __label__arb_Arab: 4.747933658492026e-05
+  __label__bod_Tibt: 6.408254017596599e-07
+  __label__cat_Latn: 7.573391111705072e-07
+  __label__ces_Latn: 3.0876132993874523e-06
+  __label__dan_Latn: 1.6311919317518616e-06
+  __label__deu_Latn: 0.11332199111210121
+  __label__eng_Latn: 0.6032855584403055
+  __label__eus_Latn: 1.747705641162709e-07
+  __label__fin_Latn: 2.9128427352711817e-07
+  __label__fra_Latn: 0.1077717440506061
+  __label__glg_Latn: 5.883942325247787e-06
+  __label__hun_Latn: 2.260365962570437e-05
+  __label__hye_Armn: 1.299127859930947e-05
+  __label__ind_Latn: 1.3049535454014893e-05
+  __label__ita_Latn: 0.06685568297365357
+  __label__kor_Hang: 0.001161466912262031
+  __label__krc_Cyrl: 0.00028563335862069204
+  __label__lmo_Latn: 1.2525223761666081e-05
+  __label__ltz_Latn: 8.155959658759308e-07
+  __label__min_Latn: 5.825685470542363e-08
+  __label__nld_Latn: 2.2720173335115216e-06
+  __label__nob_Latn: 6.408254017596599e-07
+  __label__npi_Deva: 1.3399076582247436e-06
+  __label__oci_Latn: 2.580778663450267e-05
+  __label__pol_Latn: 5.94219917995321e-06
+  __label__por_Latn: 7.957886352760867e-05
+  __label__san_Deva: 9.903665299922018e-07
+  __label__slk_Latn: 2.2079347933355558e-05
+  __label__slv_Latn: 5.476144342309821e-06
+  __label__spa_Latn: 0.10279678342932703
+  __label__swe_Latn: 6.408254017596599e-07
+  __label__tgl_Latn: 5.825685470542363e-07
+  __label__tur_Latn: 2.1904577369239284e-05
+  __label__ukr_Cyrl: 5.5926580517206686e-06
+  __label__vie_Latn: 2.8487601950952154e-05
+  __label__war_Latn: 1.747705641162709e-07
+  __label__yue_Hant: 0.0041939109702434476
+  __label__zsm_Latn: 3.7284387011471125e-06

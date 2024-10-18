@@ -1,0 +1,33 @@
+f1: 0.0
+gold_language_dist:
+  __label__eng_Latn: 1.0
+num_samples: 7725
+precision@1: 0.0
+recall@1: 0.0
+selected_language_dist: {}
+top_ten_from_estimate:
+  id:
+    6: A Coffin for Jacob by Ludwig, Edward W.
+    67: Folie ? by Jim Holt
+    121: New work order by Geraldine Bedell
+    157: Spacemen Die at Home by Ludwig, Edward W.
+    166: Survival Type by Bone, Jesse F. (Jesse Franklin)
+    177: The Blue Tower by Smith, Evelyn E.
+    217: The Princess and the Physicist by Smith, Evelyn E.
+    220: The Reluctant Heroes by Robinson, Frank M.
+    236: The Winning of the Moon by Neville, Kris
+    241: Time and the Woman by Dewey, G. Gordon
+top_ten_from_projected_estimate:
+  id:
+    41: Complexity and Humanity by Yochai Benkler
+    50: Diamonds in the Rough by John Pastier
+    67: Folie ? by Jim Holt
+    76: Homecoming by Hidalgo, Miguel
+    79: 'Human Clones: Why Not? by Nathan Myhrvold'
+    114: Morgue Ship by Bradbury, Ray
+    121: New work order by Geraldine Bedell
+    168: The Absurdity of Family Love by Robert Wright
+    177: The Blue Tower by Smith, Evelyn E.
+    237: The end of the web by Katja Bego
+total_language_dist:
+  __label__eng_Latn: 1.0

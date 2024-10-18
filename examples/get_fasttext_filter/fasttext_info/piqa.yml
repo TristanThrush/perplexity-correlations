@@ -1,0 +1,83 @@
+f1: 0.11649089165867689
+gold_language_dist:
+  __label__bod_Tibt: 5.816195428819364e-07
+  __label__cat_Latn: 3.4897172572916187e-06
+  __label__deu_Latn: 0.0009573457675836674
+  __label__eng_Latn: 0.9948136985361218
+  __label__kor_Hang: 0.0005537018048236035
+  __label__krc_Cyrl: 7.444730148888786e-05
+  __label__por_Latn: 1.977506445798584e-05
+  __label__slv_Latn: 5.467223703090203e-05
+  __label__spa_Latn: 0.0004594794388767298
+  __label__yue_Hant: 0.0030628085128162775
+num_samples: 34419
+precision@1: 0.7297297297297297
+recall@1: 0.0632977337848398
+selected_language_dist:
+  __label__eng_Latn: 0.9687349728652882
+  __label__kor_Hang: 0.0014941265370612077
+  __label__slv_Latn: 0.0008071718073778938
+  __label__yue_Hant: 0.02896372879027272
+top_ten_from_estimate:
+  domain:
+    294: api-bridge.azurewebsites.net
+    1746: familyserviceshub.havering.gov.uk
+    3884: ricardofrancia.com
+    5032: www.aaeoptometry.com
+    5134: www.akronchildrens.org
+    6229: www.eczemainfoclub.com
+    6718: www.groupeproxim.ca
+    6744: www.gynecology-doctors.com
+    7567: www.medicineshoppe.ca
+    7601: www.metropolitanvisionnyc.com
+top_ten_from_projected_estimate:
+  domain:
+    20: 2gringos.blogspot.com
+    1845: forums.theregister.com
+    2360: insidethelawschoolscam.blogspot.com
+    2428: jakonrath.blogspot.com
+    3353: obsidianwings.blogs.com
+    4120: silentfilmlivemusic.blogspot.com
+    4723: twowheeledmadwoman.blogspot.com
+    5666: www.cchpca.org
+    8004: www.ornery.org
+    9413: www.wmtc.ca
+total_language_dist:
+  __label__arb_Arab: 4.747933658492026e-05
+  __label__bod_Tibt: 6.408254017596599e-07
+  __label__cat_Latn: 7.573391111705072e-07
+  __label__ces_Latn: 3.0876132993874523e-06
+  __label__dan_Latn: 1.6311919317518616e-06
+  __label__deu_Latn: 0.11332199111210121
+  __label__eng_Latn: 0.6032855584403055
+  __label__eus_Latn: 1.747705641162709e-07
+  __label__fin_Latn: 2.9128427352711817e-07
+  __label__fra_Latn: 0.1077717440506061
+  __label__glg_Latn: 5.883942325247787e-06
+  __label__hun_Latn: 2.260365962570437e-05
+  __label__hye_Armn: 1.299127859930947e-05
+  __label__ind_Latn: 1.3049535454014893e-05
+  __label__ita_Latn: 0.06685568297365357
+  __label__kor_Hang: 0.001161466912262031
+  __label__krc_Cyrl: 0.00028563335862069204
+  __label__lmo_Latn: 1.2525223761666081e-05
+  __label__ltz_Latn: 8.155959658759308e-07
+  __label__min_Latn: 5.825685470542363e-08
+  __label__nld_Latn: 2.2720173335115216e-06
+  __label__nob_Latn: 6.408254017596599e-07
+  __label__npi_Deva: 1.3399076582247436e-06
+  __label__oci_Latn: 2.580778663450267e-05
+  __label__pol_Latn: 5.94219917995321e-06
+  __label__por_Latn: 7.957886352760867e-05
+  __label__san_Deva: 9.903665299922018e-07
+  __label__slk_Latn: 2.2079347933355558e-05
+  __label__slv_Latn: 5.476144342309821e-06
+  __label__spa_Latn: 0.10279678342932703
+  __label__swe_Latn: 6.408254017596599e-07
+  __label__tgl_Latn: 5.825685470542363e-07
+  __label__tur_Latn: 2.1904577369239284e-05
+  __label__ukr_Cyrl: 5.5926580517206686e-06
+  __label__vie_Latn: 2.8487601950952154e-05
+  __label__war_Latn: 1.747705641162709e-07
+  __label__yue_Hant: 0.0041939109702434476
+  __label__zsm_Latn: 3.7284387011471125e-06

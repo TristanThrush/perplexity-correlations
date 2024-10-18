@@ -99,7 +99,15 @@ for group in config.target_benchmark_groups:
 
     estimate = estimator(X, y)
 
+    # Just computing this as something interesting to know
+    ten_largest_indices = np.argpartition(estimate, -10)[-10:]
+    top_ten_from_estimate = labels_df[aggregation_columns].loc[ten_largest_indices].to_dict()
+
     projected_estimate = linear(estimate, thresholds)
+    
+    # Just computing this as something interesting to know
+    projected_ten_largest_indices = np.argpartition(projected_estimate, -10)[-10:]
+    top_ten_from_projected_estimate = labels_df[aggregation_columns].loc[projected_ten_largest_indices].to_dict()
 
     labels = np.array(["__label__exclude"] * len(projected_estimate))
     labels[np.nonzero(projected_estimate)] = "__label__include"
@@ -159,7 +167,6 @@ for group in config.target_benchmark_groups:
     # Evaluate the model.
     test_results = {}
 
-
     # First, get f1, precision, and recall for classifying the text correctly.
     def predict_label(text):
         labels, probabilities = model.predict(text.replace("\n", " "), k=1)
@@ -197,6 +204,9 @@ for group in config.target_benchmark_groups:
 
     test_df_gold_selected = test_df[test_df["label"] == "__label__include"]
     test_results["gold_language_dist"] = (test_df_gold_selected.groupby("language")["token_count"].sum() / test_df_gold_selected["token_count"].sum()).to_dict()
+
+    test_results["top_ten_from_estimate"] = top_ten_from_estimate
+    test_results["top_ten_from_projected_estimate"] = top_ten_from_projected_estimate
     
     os.makedirs("fasttext_info", exist_ok=True)
     with open(f"fasttext_info/{group.name}.yml", "w") as file:
