@@ -89,3 +89,18 @@ scheduler too. You can monitor progress or errors by checking this log. Common i
 * A model download (particularly for Meta) may require that you are logged into your Hugging Face account via huggingface-cli and that you have already accepted the terms of use by going to that model's Hugging Face page.
 * A model may run out of GPU memory. In `get_error_and_bpb.py` you can lower the default number for `--hf_llm_batch_size` and then try again.
 
+## Existing job outputs for you to play with
+
+We've run the two scripts in this directory already, for all example configs!
+Due to size, we don't include the chunked datasets, or the cache files for each LLM job.
+But we have still uploaded the error and BPB `.csv` files in `error_csvs` and `bpb_csvs`.
+Note that `bpb_csvs/chunked_rpjv2_sample_bpb_domain.csv` and `error_csvs/error.csv` are the data
+that were used to train the estimators in the Perplexity Correlations paper, and result from running:
+
+```
+python chunk_pretraining_data_sample.py --config chunker_configs/rpjv2_sample_chunker_config.yml
+python get_error_and_bpb.py --config error_and_bpb_configs/error_and_rpjv2_bpb_config.yml
+```
+
+(tecnhically, we reimplemented the code from the paper, but have confirmed that this data results in
+fastText classifiers with essentially the same behavior).
