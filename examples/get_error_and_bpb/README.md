@@ -1,4 +1,4 @@
-# Getting BPB Matrix and Perf Vectors
+# Getting BPB Matrix and Error Vectors
 
 This directory has two python scripts:
 
