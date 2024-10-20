@@ -1,20 +1,20 @@
-f1: 0.19392917369308602
+f1: 0.1987353206865402
 gold_language_dist:
   __label__eng_Latn: 1.0
-num_samples: 7725
-precision@1: 0.92
-recall@1: 0.10838831291234684
+num_samples: 7736
+precision@1: 0.8208955223880597
+recall@1: 0.1130524152106886
 selected_language_dist:
   __label__eng_Latn: 1.0
 top_ten_from_estimate:
   id:
-    49: Dark Side Lite by David Edelstein
     69: Goings On About Town by Jim Holt
     99: Let Si Get This by David Plotz
     127: 'Open Access: Casualties by Peter Suber'
     128: 'Open Access: Economics by Peter Suber'
     129: 'Open Access: Policies by Peter Suber'
     130: 'Open Access: What Is Open Access? by Peter Suber'
+    143: Reading the Inaugurals by Herbert Stein
     255: Warrior Queens by David Edelstein
     258: What cities in the post-Brexit era could learn from a 14th-century trading
       bloc by Christopher Beanland

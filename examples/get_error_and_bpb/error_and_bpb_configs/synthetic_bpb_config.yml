@@ -79,7 +79,7 @@ llms:
       - Felladrin/Minueza-32M-Base
   - family: ahxt
     hf_names:
-      - LiteLlama-460M-1T
+      - ahxt/LiteLlama-460M-1T
   - family: tencentarc
     hf_names:
       - TencentARC/Mistral_Pro_8B_v0.1

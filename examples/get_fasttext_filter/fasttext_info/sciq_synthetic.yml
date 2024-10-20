@@ -1,21 +1,21 @@
-f1: 0.20020222446916078
+f1: 0.212253829321663
 gold_language_dist:
   __label__eng_Latn: 1.0
-num_samples: 7725
-precision@1: 0.9428571428571428
-recall@1: 0.11199095022624435
+num_samples: 7736
+precision@1: 0.9509803921568627
+recall@1: 0.11945812807881774
 selected_language_dist:
   __label__eng_Latn: 1.0
 top_ten_from_estimate:
   id:
-    24: Booze You Can Use by James Fallows
     93: Junior Achievement by Lee, William M.
     95: Just another free soul by Joi Ito
-    113: More Booze You Can Use by James Fallows
-    128: 'Open Access: Economics by Peter Suber'
-    130: 'Open Access: What Is Open Access? by Peter Suber'
+    120: 'New money: Do local currencies actually work? by Hazel Sheffield'
+    121: New work order by Geraldine Bedell
     134: Peggy Finds the Theatre by Hughes, Virginia
+    135: Peggy Plays Off-Broadway by Hughes, Virginia
     151: 'Sharism: A Mind Revolution by Isaac Mao'
+    157: Spacemen Die at Home by Ludwig, Edward W.
     171: The Autumn After Next by St. Clair, Margaret
     233: The Super Opener by Zuroy, Michael
 top_ten_from_projected_estimate:
@@ -24,11 +24,11 @@ top_ten_from_projected_estimate:
     39: Circus by Nourse, Alan Edward
     86: In the Garden by Lafferty, R. A.
     95: Just another free soul by Joi Ito
-    112: More Bang for the Buck by Scott Shuger
     113: More Booze You Can Use by James Fallows
     120: 'New money: Do local currencies actually work? by Hazel Sheffield'
     121: New work order by Geraldine Bedell
     128: 'Open Access: Economics by Peter Suber'
+    129: 'Open Access: Policies by Peter Suber'
     151: 'Sharism: A Mind Revolution by Isaac Mao'
 total_language_dist:
   __label__eng_Latn: 1.0

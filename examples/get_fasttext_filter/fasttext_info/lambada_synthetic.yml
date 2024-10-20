@@ -1,16 +1,14 @@
-f1: 0.0019193857965451055
+f1: 0.0
 gold_language_dist:
   __label__eng_Latn: 1.0
-num_samples: 7725
-precision@1: 1.0
-recall@1: 0.0009606147934678194
-selected_language_dist:
-  __label__eng_Latn: 1.0
+num_samples: 7736
+precision@1: 0.0
+recall@1: 0.0
+selected_language_dist: {}
 top_ten_from_estimate:
   id:
     2: ' I, Antichrist? by Jeffrey Goldberg'
     49: Dark Side Lite by David Edelstein
-    61: Edward W. Said by A.O. Scott
     69: Goings On About Town by Jim Holt
     91: Jinx Ship to the Rescue by Coppel, Alfred
     99: Let Si Get This by David Plotz
@@ -19,6 +17,7 @@ top_ten_from_estimate:
     255: Warrior Queens by David Edelstein
     258: What cities in the post-Brexit era could learn from a 14th-century trading
       bloc by Christopher Beanland
+    260: Wind by Fontenay, Charles L.
 top_ten_from_projected_estimate:
   id:
     1: ' Fight Clubbed by David Plotz'
