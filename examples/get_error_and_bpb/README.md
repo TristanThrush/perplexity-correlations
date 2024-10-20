@@ -87,6 +87,7 @@ scheduler too. You can monitor progress or errors by checking this log. Common i
 We've run the two scripts in this directory already, for all example configs!
 Due to size, we don't include the chunked datasets, or the cache files for each LLM job.
 But we have still uploaded the error and BPB `.csv` files in `error_csvs` and `bpb_csvs`.
+We only uploaded the domain BPB files and not the chunk or id ones (again because of size).
 Note that `bpb_csvs/chunked_rpjv2_sample_bpb_domain.csv` and `error_csvs/error.csv` are the data
 that were used to train the estimators in the Perplexity Correlations paper, and result from running:
 
