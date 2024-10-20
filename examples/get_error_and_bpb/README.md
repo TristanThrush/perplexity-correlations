@@ -78,7 +78,7 @@ The cache that each LLM job creates can be found in a directory that the script 
 in the example configs. There will be subdirectories for each LLM. Right now, `error_and_bob_scheduler.sh`
 saves a job log for each model in `job_log.txt` - we reccomend that you implement this behavior with your
 scheduler too. You can monitor progress or errors by checking this log. Common issues may include:
-* The chunks are too big for a particular LLM's context. Youll either have to re-chunk the dataset or remove that LLM.
+* The chunks are too big for a particular LLM's context. You will either have to re-chunk the dataset with a smaller chunk size, or remove that LLM.
 * A model download (particularly for Meta) may require that you are logged into your Hugging Face account via huggingface-cli and that you have already accepted the terms of use by going to that model's Hugging Face page.
 * A model may run out of GPU memory. In `get_error_and_bpb.py` you can lower the default number for `--hf_llm_batch_size` and then try again.
 
