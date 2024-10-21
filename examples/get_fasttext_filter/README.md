@@ -5,7 +5,7 @@ correlation estimators, using the BPB and error `.csv` files in the `get_error_a
 Also note that you need to have the required chunked dataset in the `get_error_and_bpb/` directory too.
 The script saves fastText pretraining data filters targeting specified benchmarks. To use one of these
 fastText models as a pretraining data filter, we reccomend that you sort your pretraining documents by the
-fastText model include score, and then select the highest scoring documents until you've reached your
+model's `__include__` score, and then select the highest scoring documents until you've reached your
 pretraining token budget.
 
 Check out some of the example config `.yml` files in this directory to see some of the options that
