@@ -2,7 +2,7 @@
 
 This directory has two python scripts:
 
-* `chunk_pretraining_data_sample.py`, which allows you to specify a training data sample that it then chunks into pieces that fit into the contexts of LLMs that you care about.
+* `chunk_pretraining_data_sample.py`, which allows you to specify a training data sample that it then chunks into pieces. The chunks should be small enough to fit into the contexts of typical LLMs.
 * `get_error_and_bpb.py`, which allows you to specify LLMs, benchmarks, and a chunked dataset. This information is used to extract bits-per-byte values and benchmark errors that feed into our perplexity-correlations package.
 
 ## Chunk a Sample of Some Pretraining Data
