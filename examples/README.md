@@ -19,7 +19,7 @@ The examples compute BPB from different groups of ~100 open-source language mode
 and also a synthetic pretraining dataset. They also compute evals on many different benchmarks using the
 Eleuther Eval Harness.
 
-Navigate to `get_pretraining_sampling_dist` for examples of using
+Navigate to `get_fasttext_filter` for examples of using
 the information from `get_error_and_bpb` to estimate good pretraining
 sampling distributions. The examples save reusable fastText training data filters,
 which you can plug into your LLM training pipeline, whatever it may be.
