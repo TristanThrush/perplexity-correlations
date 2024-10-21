@@ -1,0 +1,52 @@
+f1: 0.6274395572385668
+gold_language_dist:
+  __label__bod_Tibt: 8.669184775871231e-07
+  __label__deu_Latn: 0.6158086052061922
+  __label__eng_Latn: 0.0023198738460231414
+  __label__fra_Latn: 0.0004421284235694328
+  __label__ita_Latn: 0.3801177448676259
+  __label__kor_Hang: 4.3345923879356156e-05
+  __label__ltz_Latn: 8.669184775871232e-06
+  __label__spa_Latn: 0.0008305079015284639
+  __label__vie_Latn: 2.6007554327613694e-06
+  __label__yue_Hant: 0.00042565697249527745
+num_samples: 20236
+precision@1: 0.6101983002832861
+recall@1: 0.64568345323741
+selected_language_dist:
+  __label__deu_Latn: 0.4888557936680754
+  __label__ita_Latn: 0.5108676475496733
+  __label__kor_Hang: 2.8609529198408673e-05
+  __label__yue_Hant: 0.00024794925305287517
+total_language_dist:
+  __label__ast_Latn: 1.978994266509437e-06
+  __label__bod_Tibt: 1.2906484346800676e-06
+  __label__cat_Latn: 1.7208645795734235e-07
+  __label__deu_Latn: 0.125001451979489
+  __label__eng_Latn: 0.6002527089635104
+  __label__epo_Latn: 5.16259373872027e-07
+  __label__eus_Latn: 1.2906484346800676e-06
+  __label__fra_Latn: 0.10616306138366977
+  __label__glg_Latn: 8.604322897867118e-08
+  __label__hun_Latn: 6.263947069647261e-05
+  __label__ita_Latn: 0.06656527906185347
+  __label__khk_Cyrl: 5.28305425929041e-05
+  __label__kor_Hang: 0.0009208346365297389
+  __label__krc_Cyrl: 2.787800618908946e-05
+  __label__lit_Latn: 2.581296869360135e-07
+  __label__ltz_Latn: 1.2906484346800676e-06
+  __label__mar_Deva: 1.8069078085520946e-06
+  __label__nob_Latn: 3.441729159146847e-07
+  __label__oci_Latn: 7.786912222569741e-05
+  __label__pap_Latn: 7.743890608080406e-07
+  __label__pol_Latn: 9.464755187653829e-07
+  __label__ron_Latn: 6.883458318293694e-07
+  __label__san_Deva: 4.689355979337579e-05
+  __label__slk_Latn: 7.743890608080406e-07
+  __label__slv_Latn: 2.581296869360135e-07
+  __label__spa_Latn: 0.09704170472286981
+  __label__ukr_Cyrl: 8.260149981952432e-06
+  __label__vec_Latn: 4.302161448933559e-07
+  __label__vie_Latn: 4.1903052512612865e-05
+  __label__yue_Hant: 0.003715432670528
+  __label__zsm_Latn: 8.346193210931105e-06

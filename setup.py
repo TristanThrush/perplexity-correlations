@@ -7,7 +7,7 @@ setup(
     name="perplexity_correlations",
     version="0.1.2",
     packages=find_packages(),
-    install_requires=["numpy"],
+    install_requires=["numpy==1.26.4"],
     extras_require={
         "dev": [
             "flake8>=6.0.0",

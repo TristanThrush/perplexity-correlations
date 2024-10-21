@@ -1,0 +1,34 @@
+f1: 0.15071283095723015
+gold_language_dist:
+  __label__eng_Latn: 1.0
+num_samples: 7736
+precision@1: 0.9367088607594937
+recall@1: 0.08194905869324474
+selected_language_dist:
+  __label__eng_Latn: 1.0
+top_ten_from_estimate:
+  id:
+    9: A Gift from Earth by Banister, Manly
+    39: Circus by Nourse, Alan Edward
+    67: Folie ? by Jim Holt
+    96: Juvenile Delinquent by Ludwig, Edward W.
+    121: New work order by Geraldine Bedell
+    127: 'Open Access: Casualties by Peter Suber'
+    135: Peggy Plays Off-Broadway by Hughes, Virginia
+    157: Spacemen Die at Home by Ludwig, Edward W.
+    177: The Blue Tower by Smith, Evelyn E.
+    220: The Reluctant Heroes by Robinson, Frank M.
+top_ten_from_projected_estimate:
+  id:
+    8: A Filbert Is a Nut by Raphael, Rick
+    39: Circus by Nourse, Alan Edward
+    67: Folie ? by Jim Holt
+    79: 'Human Clones: Why Not? by Nathan Myhrvold'
+    96: Juvenile Delinquent by Ludwig, Edward W.
+    121: New work order by Geraldine Bedell
+    127: 'Open Access: Casualties by Peter Suber'
+    128: 'Open Access: Economics by Peter Suber'
+    177: The Blue Tower by Smith, Evelyn E.
+    220: The Reluctant Heroes by Robinson, Frank M.
+total_language_dist:
+  __label__eng_Latn: 1.0

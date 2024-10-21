@@ -1,0 +1,36 @@
+f1: 0.15488867376573087
+gold_language_dist:
+  __label__eng_Latn: 1.0
+num_samples: 7736
+precision@1: 0.9523809523809523
+recall@1: 0.08429926238145416
+selected_language_dist:
+  __label__eng_Latn: 1.0
+top_ten_from_estimate:
+  id:
+    49: Dark Side Lite by David Edelstein
+    69: Goings On About Town by Jim Holt
+    99: Let Si Get This by David Plotz
+    127: 'Open Access: Casualties by Peter Suber'
+    128: 'Open Access: Economics by Peter Suber'
+    130: 'Open Access: What Is Open Access? by Peter Suber'
+    143: Reading the Inaugurals by Herbert Stein
+    255: Warrior Queens by David Edelstein
+    258: What cities in the post-Brexit era could learn from a 14th-century trading
+      bloc by Christopher Beanland
+    260: Wind by Fontenay, Charles L.
+top_ten_from_projected_estimate:
+  id:
+    2: ' I, Antichrist? by Jeffrey Goldberg'
+    49: Dark Side Lite by David Edelstein
+    61: Edward W. Said by A.O. Scott
+    65: Face value by Rhodri Marsden
+    69: Goings On About Town by Jim Holt
+    99: Let Si Get This by David Plotz
+    127: 'Open Access: Casualties by Peter Suber'
+    128: 'Open Access: Economics by Peter Suber'
+    143: Reading the Inaugurals by Herbert Stein
+    258: What cities in the post-Brexit era could learn from a 14th-century trading
+      bloc by Christopher Beanland
+total_language_dist:
+  __label__eng_Latn: 1.0

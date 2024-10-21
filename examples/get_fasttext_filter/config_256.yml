@@ -1,0 +1,34 @@
+bpb_csv: ../get_error_and_bpb/bpb_csvs/chunked_rpjv2_sample_bpb_256_domain.csv
+error_csv: ../get_error_and_bpb/error_csvs/error_256.csv
+target_benchmark_groups:
+  - name: sciq_256
+    benchmarks:
+      - sciq
+  - name: piqa_256
+    benchmarks:
+      - piqa
+  - name: arc_easy_256
+    benchmarks:
+      - arc_easy
+  - name: lambada_256
+    benchmarks:
+      - lambada_openai
+      - lambada_standard
+  - name: lambada_fr_256
+    benchmarks:
+      - lambada_openai_mt_fr
+  - name: lambada_de_256
+    benchmarks:
+      - lambada_openai_mt_de
+  - name: lambada_it_256
+    benchmarks:
+      - lambada_openai_mt_it
+  - name: lambada_es_256
+    benchmarks:
+      - lambada_openai_mt_es 
+hf_tokenizer_name: EleutherAI/pythia-160m
+desired_filter_ratio: 0.1  # Lower means more filtering
+num_proc: 16
+fasttext_label_aggregation: id
+estimator: spearmanr
+chunked_pretraining_data_sample: ../get_error_and_bpb/chunked_datasets/chunked_rpjv2_sample_256

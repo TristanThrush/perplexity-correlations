@@ -1,0 +1,35 @@
+f1: 0.45910577971646677
+gold_language_dist:
+  __label__eng_Latn: 1.0
+num_samples: 7736
+precision@1: 0.9882629107981221
+recall@1: 0.2990056818181818
+selected_language_dist:
+  __label__eng_Latn: 1.0
+top_ten_from_estimate:
+  id:
+    27: Bread Overhead by Leiber, Fritz
+    50: Diamonds in the Rough by John Pastier
+    79: 'Human Clones: Why Not? by Nathan Myhrvold'
+    83: I'm a Stranger Here Myself by Reynolds, Mack
+    97: Kick Me by Eliza Truitt
+    99: Let Si Get This by David Plotz
+    120: 'New money: Do local currencies actually work? by Hazel Sheffield'
+    121: New work order by Geraldine Bedell
+    143: Reading the Inaugurals by Herbert Stein
+    258: What cities in the post-Brexit era could learn from a 14th-century trading
+      bloc by Christopher Beanland
+top_ten_from_projected_estimate:
+  id:
+    1: ' Fight Clubbed by David Plotz'
+    8: A Filbert Is a Nut by Raphael, Rick
+    68: Going off track by Christopher Beanland
+    79: 'Human Clones: Why Not? by Nathan Myhrvold'
+    83: I'm a Stranger Here Myself by Reynolds, Mack
+    99: Let Si Get This by David Plotz
+    120: 'New money: Do local currencies actually work? by Hazel Sheffield'
+    121: New work order by Geraldine Bedell
+    143: Reading the Inaugurals by Herbert Stein
+    145: Republican Shakeout by William Saletan
+total_language_dist:
+  __label__eng_Latn: 1.0

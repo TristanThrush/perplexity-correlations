@@ -1,0 +1,85 @@
+f1: 0.18149146451033243
+gold_language_dist:
+  __label__bod_Tibt: 5.667928536489841e-07
+  __label__deu_Latn: 0.0006155370390627967
+  __label__eng_Latn: 0.9927042423878303
+  __label__glg_Latn: 2.4372092706906313e-05
+  __label__ita_Latn: 1.4736614194873586e-05
+  __label__kor_Hang: 0.0008513228661807741
+  __label__krc_Cyrl: 7.254948526706996e-05
+  __label__slv_Latn: 5.32785282430045e-05
+  __label__spa_Latn: 0.001313825834758345
+  __label__vie_Latn: 1.1335857072979682e-06
+  __label__yue_Hant: 0.004348434773195005
+num_samples: 34419
+precision@1: 0.73992673992674
+recall@1: 0.10343061955965181
+selected_language_dist:
+  __label__eng_Latn: 0.984656362545018
+  __label__kor_Hang: 0.00040328631452581033
+  __label__krc_Cyrl: 0.0006002400960384153
+  __label__slv_Latn: 0.0004408013205282113
+  __label__yue_Hant: 0.013899309723889556
+top_ten_from_estimate:
+  domain:
+    294: api-bridge.azurewebsites.net
+    4309: superlogical.net
+    5032: www.aaeoptometry.com
+    5134: www.akronchildrens.org
+    6244: www.edusofttech.com
+    6536: www.fredericksburgtso.com
+    6760: www.harborfronthospitalforanimals.com
+    6837: www.hopkinsallchildrens.org
+    7601: www.metropolitanvisionnyc.com
+    7734: www.myheartliveshere.com
+top_ten_from_projected_estimate:
+  domain:
+    20: 2gringos.blogspot.com
+    1135: coyoteprimeblog2.blogspot.com
+    2360: insidethelawschoolscam.blogspot.com
+    2428: jakonrath.blogspot.com
+    2703: lesliekenton.com
+    4723: twowheeledmadwoman.blogspot.com
+    5666: www.cchpca.org
+    6200: www.ecb.europa.eu
+    8108: www.petguide.com
+    9413: www.wmtc.ca
+total_language_dist:
+  __label__arb_Arab: 4.747933658492026e-05
+  __label__bod_Tibt: 6.408254017596599e-07
+  __label__cat_Latn: 7.573391111705072e-07
+  __label__ces_Latn: 3.0876132993874523e-06
+  __label__dan_Latn: 1.6311919317518616e-06
+  __label__deu_Latn: 0.11332199111210121
+  __label__eng_Latn: 0.6032855584403055
+  __label__eus_Latn: 1.747705641162709e-07
+  __label__fin_Latn: 2.9128427352711817e-07
+  __label__fra_Latn: 0.1077717440506061
+  __label__glg_Latn: 5.883942325247787e-06
+  __label__hun_Latn: 2.260365962570437e-05
+  __label__hye_Armn: 1.299127859930947e-05
+  __label__ind_Latn: 1.3049535454014893e-05
+  __label__ita_Latn: 0.06685568297365357
+  __label__kor_Hang: 0.001161466912262031
+  __label__krc_Cyrl: 0.00028563335862069204
+  __label__lmo_Latn: 1.2525223761666081e-05
+  __label__ltz_Latn: 8.155959658759308e-07
+  __label__min_Latn: 5.825685470542363e-08
+  __label__nld_Latn: 2.2720173335115216e-06
+  __label__nob_Latn: 6.408254017596599e-07
+  __label__npi_Deva: 1.3399076582247436e-06
+  __label__oci_Latn: 2.580778663450267e-05
+  __label__pol_Latn: 5.94219917995321e-06
+  __label__por_Latn: 7.957886352760867e-05
+  __label__san_Deva: 9.903665299922018e-07
+  __label__slk_Latn: 2.2079347933355558e-05
+  __label__slv_Latn: 5.476144342309821e-06
+  __label__spa_Latn: 0.10279678342932703
+  __label__swe_Latn: 6.408254017596599e-07
+  __label__tgl_Latn: 5.825685470542363e-07
+  __label__tur_Latn: 2.1904577369239284e-05
+  __label__ukr_Cyrl: 5.5926580517206686e-06
+  __label__vie_Latn: 2.8487601950952154e-05
+  __label__war_Latn: 1.747705641162709e-07
+  __label__yue_Hant: 0.0041939109702434476
+  __label__zsm_Latn: 3.7284387011471125e-06
