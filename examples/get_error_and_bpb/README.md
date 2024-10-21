@@ -7,8 +7,8 @@ This directory has two python scripts:
 
 ## Chunk a Sample of Some Pretraining Data
 
-The first step is deciding what data you want to get a bunch of BPB
-values on. Ideally, this should be an i.i.d. sample from a dataset that you want to pretrain with.
+The first step is deciding the data for which you want to get a bunch of BPB values.
+Ideally, this should be an i.i.d. sample from a dataset that you will use for pretraining.
 We need to chunk this data sample into pieces that will fit into the context of
 a bunch of LLMs. We do this by using a script that uses some arbitrary reference tokenizer
 (like the one from Llama 2) and a token threshold (like 256), and then creating a version
