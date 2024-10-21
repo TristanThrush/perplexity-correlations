@@ -58,7 +58,7 @@ In the case of the above example, it is just a little test and only one job will
 For every LLM job that completes, you will see rows and columns
 asyncronously added to the specified error `.csv` file and the specified BPB `.csv` files.
 The error BPB will be #LLMs x #benmarks. There will be multiple output BPB csv files: they will
-be #LLMs x #chunks, #LLMs x #IDs, (and #LLMs x #Domains if you specified a domain column
+be #LLMs x #chunks, and #LLMs x #IDs (and #LLMs x #Domains if you specified a domain column
 in your dataset). They have BPB values at different levels of granularity depending on whether you
 want to run our estimate at the domain level, page (id) level, or chunk level. Note that you can't
 simply get e.g. the domain-level matrix by averaging over the page-level matrix: we need to use a
