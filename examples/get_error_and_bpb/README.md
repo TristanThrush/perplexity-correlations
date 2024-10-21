@@ -12,14 +12,14 @@ Ideally, this should be an i.i.d. sample from a dataset that you will use for pr
 We need to chunk this data sample into pieces that will fit into the context of
 a bunch of LLMs. We do this by using a script that uses some arbitrary reference tokenizer
 (like the one from Llama 2) and a token threshold (like 256), and then creating a version
-of the pretraining data sample that is split into these chunks. Check out `chunker_configs`
+of the pretraining data sample that is split into these chunks. Check out `chunker_configs/`
 for a few examples of what can be specified. You should be able to use practically any Hugging Face text
 dataset as long as it has a text column and id column. You can then run `chunk_pretraining_data_sample.py`
 like this:
 
 `python chunk_pretraining_data_sample.py --config chunker_configs/rpjv2_sample_chunker_config.yml`
 
-This script will save the result as a Hugging Face dataset in a new directory called `chunked_datasets`.
+This script will save the result as a Hugging Face dataset in a new directory called `chunked_datasets/`.
 
 It is reccomended that you get a machine with lots of CPUs and memory for this. You can set the
 number of CPUs in the config. If you get unusual errors, it is probably because an example in a
@@ -33,7 +33,7 @@ takes in a config that you can use to specify the path to the chunked dataset
 from the previous step, along with and evaluations available via the
 [Eleuther Eval Harness](https://github.com/EleutherAI/lm-evaluation-harness), and causal LLMs
 available on Hugging Face. You can check out examples of what can be speficied in
-`error_and_bpb_configs`.
+`error_and_bpb_configs/`.
 
 The python script spins up a separate job for each LLM to get BPB values on the
 chunked pretraining data sample, and benchmark errors on the evals. The jobs are spun up via the
