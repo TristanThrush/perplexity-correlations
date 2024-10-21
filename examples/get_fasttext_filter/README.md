@@ -1,8 +1,8 @@
 # Compute Estimate, Train and Save a fastText Filter
 
 You can run the `get_fasttext_filter.py` script in this directory to compute perplexity
-correlation estimators, using the BPB and error `.csv` files in the `get_error_and_bpb` directory.
-Also note that you need to have run the dataset chunking script in the `get_error_and_bpb` directory too.
+correlation estimators, using the BPB and error `.csv` files in the `get_error_and_bpb/` directory.
+Also note that you need to have the required chunked dataset in the `get_error_and_bpb/` directory too.
 The script saves fastText pretraining data filters targeting specified benchmarks.
 
 Check out some of the example config `.yml` files in this directory to see some of the options that
