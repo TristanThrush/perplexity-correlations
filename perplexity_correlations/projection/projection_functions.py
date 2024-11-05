@@ -9,8 +9,8 @@ def _value_check_estimate_and_tau(estimate, tau):
         raise ValueError(f"tau has {tau.ndim} dimensions but expected 1.")
     if np.any(tau <= 0):
         raise ValueError(
-            "tau values must be positive.\
-If you want certain tau values to be zero, then\
+            "tau values must be positive. \
+If you want certain tau values to be zero, then \
 run the estimation without those domains."
         )
     if np.sum(tau) < 1:
