@@ -1,0 +1,1 @@
+JOBID1=$(nlprun -q sphinx --exclude sphinx3,sphinx4,sphinx5,sphinx6,sphinx7,sphinx8,sphinx9 -r 60G -g 4 -c 16 -a perplexity-correlations -o $1 "torchrun --master_port $2 --nproc_per_node=4 train_llm.py --output_dir_prefix $3 --mmap_prefix $4 --seed $5 --sample_wt_path $6 --token_count $7" | grep -oP "Submitted batch job \K[0-9]+")

@@ -1,0 +1,16 @@
+file_prefix: yangjun_synthetic/data
+desired_token_count: 320000000
+output_dir: sample_weights
+targets:
+  - output_name: sciq_yangjun_synthetic.npy
+    fasttext_model_path: ../get_fasttext_filter/fasttext_models/sciq_yangjun_synthetic.bin
+  - output_name: piqa_yangjun_synthetic.npy
+    fasttext_model_path: ../get_fasttext_filter/fasttext_models/piqa_yangjun_synthetic.bin
+  - output_name: arc_easy_yangjun_synthetic.npy
+    fasttext_model_path: ../get_fasttext_filter/fasttext_models/arc_easy_yangjun_synthetic.bin
+  - output_name: lambada_yangjun_synthetic.npy
+    fasttext_model_path: ../get_fasttext_filter/fasttext_models/lambada_yangjun_synthetic.bin
+id_column: url
+split: train
+text_column: latent
+hf_dataset: ../get_error_and_bpb/pre_chunked_datasets/yangjun_synthetic

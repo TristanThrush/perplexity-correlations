@@ -1,0 +1,11 @@
+output_file_prefix: data
+output_dir: mmap_datasets/yangjun_synthetic
+ds_path: ../get_error_and_bpb/pre_chunked_datasets/yangjun_synthetic
+from_disk: true
+hf_tokenizer: EleutherAI/pythia-160m
+domain: domain
+text_column: latent
+id_column: url
+split: train
+context_length: 128
+num_proc: 16

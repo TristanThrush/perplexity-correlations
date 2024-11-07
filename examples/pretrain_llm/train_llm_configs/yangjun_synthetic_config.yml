@@ -1,0 +1,24 @@
+raw_job_output_dir: raw_train_llm_job_outputs/yangjun_synthetic
+mmap_dataset_prefix: mmap_datasets/yangjun_synthetic/data
+jobs:
+  - name: uniform_yangjun_synthetic
+    seeds: 7
+    sample_weights: null
+    tokens: 320000000
+  - name: sciq_yangjun_synthetic
+    seeds: 7
+    sample_weights: sample_weights/sciq_yangjun_synthetic.npy
+    tokens: 320000000
+  - name: arc_easy_yangjun_synthetic
+    seeds: 7
+    sample_weights: sample_weights/arc_easy_yangjun_synthetic.npy
+    tokens: 320000000
+  - name: piqa_yangjun_synthetic
+    seeds: 7
+    sample_weights: sample_weights/piqa_yangjun_synthetic.npy
+    tokens: 320000000
+  - name: lambada_yangjun_synthetic
+    seeds: 7
+    sample_weights: sample_weights/lambada_yangjun_synthetic.npy
+    tokens: 320000000
+

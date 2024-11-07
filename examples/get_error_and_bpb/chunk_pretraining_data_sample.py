@@ -1,4 +1,4 @@
-from datasets import load_dataset, Features, Value
+from datasets import load_dataset, load_from_disk, Features, Value
 from transformers import AutoTokenizer
 from ast import literal_eval
 from tqdm import tqdm
@@ -17,11 +17,20 @@ args = parser.parse_args()
 with open(args.config, "r") as file:
     config = SimpleNamespace(**yaml.safe_load(file))
 
-ds = load_dataset(
-    config.hf_name,
-    name=config.subset,
-    split=config.split,
-)
+config_load_from_disk = getattr(config, "load_from_disk", False)
+if config_load_from_disk:
+    ds = load_from_disk(
+        config.hf_name,
+        #name=config.subset,
+        #split=config.split,
+    )[config.split]
+else:
+    ds = load_dataset(
+        config.hf_name,
+        name=config.subset,
+        split=config.split,
+    )
+
 if config.subsample_ratio < 1:
     sample_size = int(config.subsample_ratio * len(ds))
     ds = ds.select(range(sample_size))
@@ -46,7 +55,8 @@ if config.domain_column is not None:
             },
             num_proc=config.num_proc,
         )
-    ds = ds.rename_column(config.domain_column, "domain")
+    if config.domain_column != "domain":
+        ds = ds.rename_column(config.domain_column, "domain")
 
 
 if config.enforce_pages_per_domain:
