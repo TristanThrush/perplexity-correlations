@@ -1,2 +1,3 @@
 peft
 wandb
+tf-keras

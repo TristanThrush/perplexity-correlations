@@ -1,0 +1,11 @@
+output_file_prefix: data
+output_dir: mmap_datasets/dclm_filtered_perplexity_correlations
+ds_path: ~/tristan-storage/dclm_core.bin_filtered_dclm_pool_hf
+from_disk: true
+hf_tokenizer: EleutherAI/pythia-160m
+domain: null
+text_column: text
+id_column: id
+split: null
+context_length: 1024
+num_proc: 208

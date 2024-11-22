@@ -147,7 +147,7 @@ def train_model():
         with open(script_args.config, "r") as file:
             config = SimpleNamespace(**yaml.safe_load(file))
         
-        master_port = 29512
+        master_port = 29513
         for job in config.jobs:
             job = SimpleNamespace(**job)
             job_log = "job_log.txt"
@@ -156,7 +156,7 @@ def train_model():
                 command = f"bash train_llm_scheduler.sh \
 '{os.path.join(config.raw_job_output_dir, job.name, str(seed), job_log)}' '{master_port}' \
 '{os.path.join(config.raw_job_output_dir, job.name, str(seed))}' '{config.mmap_dataset_prefix}' \
-'{seed}' '{job.sample_weights}' '{job.tokens}'"
+'{seed}' '{job.sample_weights}' '{job.tokens}' '{job.per_device_train_batch_size}' '{job.model_id}' '{job.learning_rate}'"
                 subprocess.call(command, shell=True)
                 master_port += 1
         sys.exit()
@@ -183,7 +183,7 @@ def train_model():
         assert(np.allclose(sum(prob_vector),1))
         data_name, _ = os.path.splitext(os.path.basename(script_args.sample_wt_path))
 
-    train_dataset = get_dataset_async(prob_vector=prob_vector, ctx_len=128, memmaped_file=prefix + ".mmap", start_map=start_idx, len_map=len_idx, max_tokens=max_tokens, batch_size=10000)
+    train_dataset = get_dataset_async(prob_vector=prob_vector, ctx_len=1024, memmaped_file=prefix + ".mmap", start_map=start_idx, len_map=len_idx, max_tokens=max_tokens, batch_size=10000)
 
     output_dir = f"{script_args.output_dir_prefix}/"
 
@@ -207,7 +207,7 @@ def train_model():
         per_device_train_batch_size=script_args.per_device_train_batch_size,
         learning_rate=script_args.learning_rate,
         seed=script_args.seed,
-        max_steps=int(token_count/(128*script_args.gradient_accumulation_steps*script_args.per_device_train_batch_size)),
+        max_steps=int(token_count/(1024*script_args.gradient_accumulation_steps*script_args.per_device_train_batch_size)),
         max_grad_norm=1.0,
         gradient_accumulation_steps=script_args.gradient_accumulation_steps,
         warmup_ratio=script_args.warmup_ratio,
@@ -225,8 +225,8 @@ def train_model():
 
     # load trained model
     if script_args.from_scratch:
-        config = AutoConfig.from_pretrained(script_args.model_id)
-        model = AutoModelForCausalLM.from_config(config)
+        hf_config = AutoConfig.from_pretrained(script_args.model_id)
+        model = AutoModelForCausalLM.from_config(hf_config)
     else:
         model = AutoModelForCausalLM.from_pretrained(script_args.model_id)
 
@@ -283,7 +283,7 @@ def eval_model(lm):
         model=lm,
         #model="hf",
         #model_args=f"pretrained={output_dir}/final/,trust_remote_code=True",
-        tasks=["piqa","arc_easy","sciq","lambada","xnli_fr","xnli_de","xnli_es","lambada_multilingual"],
+        tasks=["piqa","arc_easy","lambada_openai"],
         batch_size="auto",
         limit=5000,
         bootstrap_iters=1000,

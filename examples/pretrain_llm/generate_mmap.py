@@ -22,10 +22,14 @@ def wrap_dataset_iterator(ds, fields):
 if __name__ == '__main__':
     tokenizer = AutoTokenizer.from_pretrained(config.hf_tokenizer)
     if config.from_disk:
-        ds = load_from_disk(config.ds_path)[config.split]
-        ds_subset = ds
+        if config.split is None:
+            ds_subset = load_from_disk(config.ds_path)
+        else:
+            ds = load_from_disk(config.ds_path)[config.split]
+            ds_subset = ds
     else:
         ds = load_dataset(config.ds_path, config.split)
+    print(ds_subset)
     os.makedirs(config.output_dir, exist_ok=True)
     file_prefix = os.path.join(config.output_dir, config.output_file_prefix)
     max_tokens = 100*(10**9) # 100 bil tokens
@@ -43,11 +47,13 @@ if __name__ == '__main__':
 
     # Apply tokenization and remove original columns
     ds_subset = ds_subset.map(tokenize_function, remove_columns=[name for name in ds_subset.column_names if name != config.id_column], num_proc=config.num_proc)
+    ds_subset = ds_subset.map(lambda example: {"token_count": sum(example["attention_mask"])}, num_proc=config.num_proc)
+    print("token count: ", sum(ds_subset["token_count"]))
 
     tokenize_and_mmap(wrap_dataset_iterator(ds_subset, [config.id_column, 'input_ids']), tokenizer, max_tokens, config.context_length, file_prefix)
     len_vecs = np.load(file_prefix + "_len.npy")
     prob_vec = len_vecs / np.sum(len_vecs)
-    dataset = get_dataset(prob_vector=prob_vec, ctx_len=ctx_len, memmaped_file=file_prefix + ".mmap", start_map=np.load(file_prefix + "_start.npy"), len_map=np.load(file_prefix + "_len.npy"), max_tokens=max_tokens)
+    dataset = get_dataset(prob_vector=prob_vec, ctx_len=config.context_length, memmaped_file=file_prefix + ".mmap", start_map=np.load(file_prefix + "_start.npy"), len_map=np.load(file_prefix + "_len.npy"), max_tokens=max_tokens)
 
     for i, data in enumerate(dataset):
         print(tokenizer.decode(data["input_ids"]))
