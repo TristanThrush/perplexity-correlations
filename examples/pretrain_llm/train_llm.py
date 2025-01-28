@@ -81,7 +81,7 @@ class ScriptArguments:
         },
     )
     per_device_train_batch_size: Optional[int] = field(
-        default=128,
+        default=1024,
         metadata={"help": "The Batch Size per GPU used during training"},
     )
     learning_rate: Optional[float] = field(
@@ -122,7 +122,7 @@ class ScriptArguments:
         default=0, metadata={"help": "Used for multi-gpu"}
     )
     resume_from_checkpoint: Optional[bool] = field(
-        default=False,
+        default=True,
         metadata={"help": "If you want to resume training where it left off."},
     )
     deepspeed: Optional[str] = field(
@@ -198,7 +198,9 @@ def train_model():
         logging_dir=f"{output_dir}/logs",
         logging_strategy="steps",
         logging_steps=25,
-        save_strategy="epoch",
+        save_strategy="steps",
+        save_steps=5000,
+        save_total_limit=2,
         report_to="wandb",
         run_name=data_name,
         # push to hub parameters
@@ -264,7 +266,16 @@ def train_model():
 
     # train the model
     print("Training")
-    trainer.train(script_args.resume_from_checkpoint)
+    last_checkpoint = None
+    if os.path.isdir(training_args.output_dir):
+        from transformers.trainer_utils import get_last_checkpoint
+
+        last_checkpoint = get_last_checkpoint(training_args.output_dir)
+        if last_checkpoint is None:
+            print("No checkpoint found. Starting training from scratch.")
+        else:
+            print(f"Checkpoint found at {last_checkpoint}. Resuming training.")
+    trainer.train(resume_from_checkpoint=last_checkpoint)
     print("Trained")
 
     tokenizer = AutoTokenizer.from_pretrained(script_args.model_id)

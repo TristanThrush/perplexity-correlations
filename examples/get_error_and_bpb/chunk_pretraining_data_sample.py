@@ -23,7 +23,9 @@ if config_load_from_disk:
         config.hf_name,
         #name=config.subset,
         #split=config.split,
-    )[config.split]
+    )
+    if config.split is not None:
+        ds = ds[config.split]
 else:
     ds = load_dataset(
         config.hf_name,

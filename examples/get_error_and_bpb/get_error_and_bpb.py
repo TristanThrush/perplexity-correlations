@@ -16,6 +16,11 @@ import ast
 import time
 import pandas as pd
 import warnings
+from custom_evals.jeopardy import jeopardy
+from custom_evals.jeopardy_acc import jeopardy_accuracy
+import math
+
+custom_evals = {"jeopardy": jeopardy, "jeopardy_accuracy": jeopardy_accuracy}
 
 parser = argparse.ArgumentParser()
 
@@ -26,6 +31,8 @@ parser.add_argument("--hf_llm_family", required=False)
 parser.add_argument("--eleuther_eval_names", nargs="*", required=False)
 parser.add_argument("--eleuther_eval_metrics", nargs="*", required=False)
 parser.add_argument("--eleuther_eval_lower_is_better", nargs="*", required=False)
+parser.add_argument("--eleuther_eval_num_fewshot", nargs="*", required=False)
+parser.add_argument("--custom_evals", nargs="*", required=False)
 parser.add_argument("--chunked_pretraining_data_sample", required=False)
 parser.add_argument("--raw_job_output_path", required=False)
 parser.add_argument("--error_output_csv", required=False)
@@ -37,29 +44,39 @@ parser.add_argument("--resume", action="store_true")
 parser.add_argument("--save_model_info", action="store_true")
 parser.add_argument("--device", default="cuda")
 parser.add_argument("--half_precision", action="store_true")
-parser.add_argument("--hf_llm_batch_size", type=int, default=2)
+parser.add_argument("--hf_llm_batch_size", type=int, default=1)
 
 args = parser.parse_args()
+
+if args.chunked_pretraining_data_sample == "None":
+    args.chunked_pretraining_data_sample = None
 
 # If args.config is specified, use this script just to kick off a bunch
 # of jobs, and then exit from the script
 if args.config is not None:
     with open(args.config, "r") as file:
         config = SimpleNamespace(**yaml.safe_load(file))
-
+        
     eleuther_eval_names = []
     eleuther_eval_metrics = []
+    eleuther_eval_num_fewshot = []
     eleuther_eval_lower_is_better = []
     for eval in config.evals:
         eval = SimpleNamespace(**eval)
         eleuther_eval_names.append(eval.eleuther_name)
         eleuther_eval_metrics.append(eval.metric)
         eleuther_eval_lower_is_better.append(eval.lower_is_better)
+        eleuther_eval_num_fewshot.append(eval.num_fewshot)
     eleuther_eval_names = " ".join(eleuther_eval_names)
     eleuther_eval_metrics = " ".join(eleuther_eval_metrics)
+    eleuther_eval_num_fewshot = " ".join(
+        [str(obj) for obj in eleuther_eval_num_fewshot]
+    )
     eleuther_eval_lower_is_better = " ".join(
         [str(obj) for obj in eleuther_eval_lower_is_better]
     )
+
+    custom_evals = " ".join(config.custom_evals)
 
     for family in config.llms:
         family = SimpleNamespace(**family)
@@ -79,9 +96,9 @@ if args.config is not None:
                 os.makedirs(output_path, exist_ok=True)
                 command = f"bash error_and_bpb_scheduler.sh \
 '{output_path}' '{family.family}' '{llm}' '{revision}' '{eleuther_eval_names}' \
-'{eleuther_eval_metrics}' '{eleuther_eval_lower_is_better}' \
-'{config.chunked_pretraining_data_sample}' '{config.error_output_csv}' \
-'{config.bpb_output_csv_prefix}'"
+'{eleuther_eval_metrics}' '{eleuther_eval_num_fewshot}' \
+'{eleuther_eval_lower_is_better}' '{config.chunked_pretraining_data_sample}' \
+'{config.error_output_csv}' '{config.bpb_output_csv_prefix}' '{custom_evals}'"
                 subprocess.call(command, shell=True)
     sys.exit()
 
@@ -91,8 +108,8 @@ if None in (
     args.hf_llm_name,
     args.eleuther_eval_names,
     args.eleuther_eval_metrics,
+    args.eleuther_eval_num_fewshot,
     args.eleuther_eval_lower_is_better,
-    args.chunked_pretraining_data_sample,
     args.error_output_csv,
     args.bpb_output_csv_prefix,
 ):
@@ -101,8 +118,8 @@ if None in (
 --hf_llm_name\n\
 --eleuther_eval_names\n\
 --eleuther_eval_metrics\n\
+--eleuther_eval_num_fewshot\n\
 --eleuther_eval_lower_is_better\n\
---chunked_pretraining_data_sample\n\
 --error_output_csv\n\
 --bpb_output_csv_prefix\n\
 are required if --config is not provided."
@@ -110,7 +127,8 @@ are required if --config is not provided."
 
 os.makedirs(args.raw_job_output_path, exist_ok=True)
 
-ds = load_from_disk(args.chunked_pretraining_data_sample)
+if args.chunked_pretraining_data_sample is not None:
+    ds = load_from_disk(args.chunked_pretraining_data_sample)
 
 tokenizer = AutoTokenizer.from_pretrained(
     args.hf_llm_name,
@@ -164,26 +182,41 @@ def get_loss_hf(examples):
     # Some models require this.
     inputs["attention_mask"] = inputs["attention_mask"].bool()
 
-    outputs = model(**inputs)
+    max_len = model.config.max_position_embeddings if (hasattr(model, "config") and hasattr(model.config, "max_position_embeddings")) else None
+    if max_len is None: 
+        max_len = tokenizer.model_max_length if hasattr(tokenizer, "model_max_length") else None
 
-    logits = outputs.logits
+    # UGH OPT WHYYY REEE
+    if 'opt-2.7b' in args.hf_llm_name:
+        max_len = 1024+512
 
-    loss_fn = torch.nn.CrossEntropyLoss(reduction="none")
+    if max_len is None or len(inputs["input_ids"][0]) <= max_len:
+        try:
+            outputs = model(**inputs)
 
-    shift_logits = logits[..., :-1, :].contiguous()
+            logits = outputs.logits
 
-    # Need to set pad indices to -100 for cross entropy loss to ignore the padding.
-    pad_indices = torch.where(inputs.attention_mask == 0)
-    inputs.input_ids[pad_indices] = -100
+            loss_fn = torch.nn.CrossEntropyLoss(reduction="none")
 
-    shift_labels = inputs.input_ids[..., 1:].contiguous()
+            shift_logits = logits[..., :-1, :].contiguous()
 
-    loss = loss_fn(shift_logits.view(-1, shift_logits.size(-1)), shift_labels.view(-1))
+            # Need to set pad indices to -100 for cross entropy loss to ignore the padding.
+            pad_indices = torch.where(inputs.attention_mask == 0)
+            inputs.input_ids[pad_indices] = -100
 
-    loss = loss.view(shift_labels.size())
+            shift_labels = inputs.input_ids[..., 1:].contiguous()
 
-    # This averages while ignoring the padding
-    losses = loss.sum(dim=1) / inputs.attention_mask[..., 1:].sum(dim=1)
+            loss = loss_fn(shift_logits.view(-1, shift_logits.size(-1)), shift_labels.view(-1))
+
+            loss = loss.view(shift_labels.size())
+
+            # This averages while ignoring the padding
+            losses = loss.sum(dim=1) / inputs.attention_mask[..., 1:].sum(dim=1)
+        except Exception as e:
+            losses = torch.full((args.hf_llm_batch_size,), float('nan'))
+
+    else:
+        losses = torch.full((args.hf_llm_batch_size,), float('nan'))
 
     output_examples = {
         "id": examples["id"],
@@ -199,34 +232,37 @@ def get_loss_hf(examples):
     return output_examples
 
 
-# Create a list to hold the shards. This enables us to resume getting the loss
-# from the shard where we left off if there is some issue that causes the job to
-# exit early.
-shards = []
+if args.chunked_pretraining_data_sample is not None:
+    # Create a list to hold the shards. This enables us to resume getting the loss
+    # from the shard where we left off if there is some issue that causes the job to
+    # exit early.
+    shards = []
 
-# Shard the dataset and add each shard to the list
-for i in range(args.num_loss_shards):
-    if args.resume and os.path.exists(f"{args.raw_job_output_path}/loss_shards/{i}"):
-        shard = load_from_disk(f"{args.raw_job_output_path}/loss_shards/{i}")
-        shards.append(shard)
-    else:
-        shard = ds.shard(num_shards=args.num_loss_shards, index=i)
+    # Shard the dataset and add each shard to the list
+    for i in range(args.num_loss_shards):
+        if args.resume and os.path.exists(f"{args.raw_job_output_path}/loss_shards/{i}"):
+            shard = load_from_disk(f"{args.raw_job_output_path}/loss_shards/{i}")
+            shards.append(shard)
+        else:
+            shard = ds.shard(num_shards=args.num_loss_shards, index=i)
 
-        # For efficiency - we want to avoid as much padding as possible
-        shard = shard.sort(["reference_token_count"], reverse=[True])
+            # For efficiency - we want to avoid as much padding as possible
+            shard = shard.sort(["reference_token_count"], reverse=[True])
 
-        shard = shard.map(
-            lambda example: get_loss_hf(example),
-            remove_columns=ds.column_names,
-            batched=True,
-            batch_size=args.hf_llm_batch_size,
-        )
+            shard = shard.map(
+                lambda example: get_loss_hf(example),
+                remove_columns=ds.column_names,
+                batched=True,
+                batch_size=args.hf_llm_batch_size,
+            )
 
-        shard.save_to_disk(f"{args.raw_job_output_path}/loss_shards/{i}")
+            print("NaNs in shard: ", sum(1 for item in shard['loss'] if math.isnan(item)))
 
-        shards.append(shard)
+            shard.save_to_disk(f"{args.raw_job_output_path}/loss_shards/{i}")
 
-loss_df = concatenate_datasets(shards).to_pandas()
+            shards.append(shard)
+
+    loss_df = concatenate_datasets(shards).to_pandas()
 
 # Convert to BPB at the end, so raw losses, token counts, and byte counts are still
 # stored in the loss shard datasets in case they would be useful in the future.
@@ -265,18 +301,19 @@ def get_bpb(df):
         (df["token_count"] / df["byte_count"]) * df["loss"] / np.log(2)
     )
     df.drop(columns=["token_count", "byte_count", "loss"], inplace=True)
+    df["id"]=df["id"].astype(str)
     return df
 
+if args.chunked_pretraining_data_sample is not None:
+    bpb_dfs = [get_bpb(loss_df)]
 
-bpb_dfs = [get_bpb(loss_df)]
+    if "domain" in loss_df.columns:
+        agg_groups = [["chunk", "id", "domain"], ["id", "domain"], ["domain"]]
+    else:
+        agg_groups = [["chunk", "id"], ["id"]]
 
-if "domain" in loss_df.columns:
-    agg_groups = [["chunk", "id", "domain"], ["id", "domain"], ["domain"]]
-else:
-    agg_groups = [["chunk", "id"], ["id"]]
-
-for agg_group in agg_groups[1:]:
-    bpb_dfs.append(get_bpb(aggregate_by_domain_or_id(loss_df, agg_group)))
+    for agg_group in agg_groups[1:]:
+        bpb_dfs.append(get_bpb(aggregate_by_domain_or_id(loss_df, agg_group)))
 
 
 # Function to safely read, modify, and write to shared CSV file.
@@ -295,6 +332,7 @@ def update_csv_async(
             already_added = False
             try:
                 shared_df = pd.read_csv(csv_file_path)
+                shared_df["id"]=shared_df["id"].astype(str)
                 if new_column_name in shared_df.columns:
                     shared_df = shared_df.drop(columns=[new_column_name])
                     warnings.warn(
@@ -332,17 +370,18 @@ def get_lockfile_pathname(pathname):
     return lockfile_pathname
 
 
-for index in range(len(agg_groups)):
-    bpb_df = bpb_dfs[index]
-    agg_group = agg_groups[index]
-    bpb_output_csv_name = f"{args.bpb_output_csv_prefix}_{agg_group[0]}.csv"
-    bpb_lock_file_pathname = get_lockfile_pathname(bpb_output_csv_name)
-    update_csv_async(
-        bpb_output_csv_name,
-        bpb_lock_file_pathname,
-        bpb_df,
-        agg_group,
-    )
+if args.chunked_pretraining_data_sample is not None:
+    for index in range(len(agg_groups)):
+        bpb_df = bpb_dfs[index]
+        agg_group = agg_groups[index]
+        bpb_output_csv_name = f"{args.bpb_output_csv_prefix}_{agg_group[0]}.csv"
+        bpb_lock_file_pathname = get_lockfile_pathname(bpb_output_csv_name)
+        update_csv_async(
+            bpb_output_csv_name,
+            bpb_lock_file_pathname,
+            bpb_df,
+            agg_group,
+        )
 
 # Check to see that there are actually evals specified before continuing.
 if len(args.eleuther_eval_names) == 0:
@@ -358,28 +397,40 @@ class HFLM_Local(HFLM):
 
 hflm_eleuther = HFLM_Local(pretrained=model, tokenizer=tokenizer)
 
-results = lm_eval.simple_evaluate(
-    model=hflm_eleuther,
-    tasks=args.eleuther_eval_names,
-    batch_size="auto",
-    limit=5000,
-    bootstrap_iters=1000,
-    log_samples=False,
-)
-
-# Make the name of the error column the llm model family and name, so we can
-# merge with the big shared error matrix.
 error_dict = {
-    "benchmark": args.eleuther_eval_names,
-    new_column_name: [],
+    "benchmark": args.custom_evals + [f"{name}_{shots}" for name, shots in zip(args.eleuther_eval_names, args.eleuther_eval_num_fewshot)],
+    new_column_name: [custom_evals[custom_eval](model, tokenizer, args.device) for custom_eval in args.custom_evals],
 }
+
 for index in range(len(args.eleuther_eval_names)):
+    
+    if args.eleuther_eval_num_fewshot[index] is not None:
+        results = lm_eval.simple_evaluate(
+            model=hflm_eleuther,
+            tasks=[args.eleuther_eval_names[index]],
+            batch_size="auto",
+            limit=5000,
+            bootstrap_iters=1000,
+            log_samples=False,
+            num_fewshot=int(args.eleuther_eval_num_fewshot[index]),
+        )
+    else:
+        results = lm_eval.simple_evaluate(
+            model=hflm_eleuther,
+            tasks=[args.eleuther_eval_names[index]],
+            batch_size="auto",
+            limit=5000,
+            bootstrap_iters=1000,
+            log_samples=False,
+        )
+    print(results)
+
     name = args.eleuther_eval_names[index]
     metric = args.eleuther_eval_metrics[index]
     lower_is_better = ast.literal_eval(args.eleuther_eval_lower_is_better[index])
     score = results["results"][name][metric]
-    if not lower_is_better:
-        score = 1 - score
+    #if not lower_is_better:
+    #    score = 1 - score
     error_dict[new_column_name].append(score)
 
 error_df = pd.DataFrame.from_dict(error_dict)

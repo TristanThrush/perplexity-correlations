@@ -30,9 +30,24 @@ if __name__ == '__main__':
     else:
         ds = load_dataset(config.ds_path, config.split)
     print(ds_subset)
+
+    def tokenize_function(example):
+        return tokenizer(example[config.text_column], padding="do_not_pad", truncation=False)
+
+    # Apply tokenization and remove original columns
+    if not config.already_tokenized:
+        keep_columns = [config.id_column]
+        if config.domain is not None:
+            keep_columns.append(config.domain)
+        ds_subset = ds_subset.map(tokenize_function, remove_columns=[name for name in ds_subset.column_names if name not in keep_columns], num_proc=config.num_proc)
+        ds_subset.save_to_disk(config.ds_path + "_tokenized", num_proc=config.num_proc)
+        ds_subset = ds_subset.map(lambda example: {"token_count": sum(example["attention_mask"])}, num_proc=config.num_proc)
+        print("token count: ", sum(ds_subset["token_count"]))
+        exit()
+    
     os.makedirs(config.output_dir, exist_ok=True)
     file_prefix = os.path.join(config.output_dir, config.output_file_prefix)
-    max_tokens = 100*(10**9) # 100 bil tokens
+    max_tokens = 250*(10**9) # 250 bil tokens
 
     if config.domain is not None:
         doc_id_to_domain = {}
@@ -41,14 +56,6 @@ if __name__ == '__main__':
         ds_subset.map(build_doc_id_to_domain)
         with open(file_prefix + "_doc_id_to_domain.pkl", 'wb') as f:
             pickle.dump(doc_id_to_domain, f)
-
-    def tokenize_function(example):
-        return tokenizer(example[config.text_column], padding="do_not_pad", truncation=False)
-
-    # Apply tokenization and remove original columns
-    ds_subset = ds_subset.map(tokenize_function, remove_columns=[name for name in ds_subset.column_names if name != config.id_column], num_proc=config.num_proc)
-    ds_subset = ds_subset.map(lambda example: {"token_count": sum(example["attention_mask"])}, num_proc=config.num_proc)
-    print("token count: ", sum(ds_subset["token_count"]))
 
     tokenize_and_mmap(wrap_dataset_iterator(ds_subset, [config.id_column, 'input_ids']), tokenizer, max_tokens, config.context_length, file_prefix)
     len_vecs = np.load(file_prefix + "_len.npy")

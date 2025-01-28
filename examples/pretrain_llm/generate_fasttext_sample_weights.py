@@ -17,16 +17,25 @@ with open(args.config, "r") as file:
 os.makedirs(config.output_dir, exist_ok=True)
 
 for target in config.targets:
-    fasttext_model_path = target["fasttext_model_path"]
+    if "random" in target:
+        random = True
+    else:
+        random = False
+        fasttext_model_path = target["fasttext_model_path"]
+        model = fasttext.load_model(fasttext_model_path) #'openhermes_reddit_eli5_vs_rw_v2_bigram_200k_train.bin')
+        total_labels = len(model.get_labels())
+
     output_name = target["output_name"]
-
-    model = fasttext.load_model(fasttext_model_path) #'openhermes_reddit_eli5_vs_rw_v2_bigram_200k_train.bin')
-    total_labels = len(model.get_labels())
-
-    ds = load_from_disk(config.hf_dataset)[config.split]
+    
+    if config.split is not None:
+        ds = load_from_disk(config.hf_dataset)[config.split]
+    else:
+        ds = load_from_disk(config.hf_dataset)
 
     # Run fasttext high-quality (hq) classifier
     def classify_text(example):
+        if random:
+            return np.random.randn(1)[0]
         text = example[config.text_column].replace("\n", " ")
         labels, probabilities = model.predict(text, k=total_labels)
         if '__label__hq' in labels:

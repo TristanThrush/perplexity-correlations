@@ -39,6 +39,7 @@ def get_X(df):
 
 def get_y(df, target_benchmarks):
     df = df[df["benchmark"].isin(target_benchmarks)]
+    print(df)
     df = df.sort_index(axis=1)
     y_df = df.mean(numeric_only=True)
     return y_df
@@ -66,6 +67,7 @@ ds = ds.map(
         )
     },
     num_proc=config.num_proc,
+    load_from_cache_file=False,
 )
 
 aggregation_columns = [
@@ -88,7 +90,7 @@ thresholds = (ordered_token_counts / ordered_token_counts.sum()) * (
     1 / config.desired_filter_ratio
 )
 
-ds = ds.train_test_split(test_size=0.05)
+ds = ds.train_test_split(test_size=0.001, load_from_cache_file=False)
 
 for group in config.target_benchmark_groups:
     group = SimpleNamespace(**group)
@@ -124,37 +126,77 @@ for group in config.target_benchmark_groups:
         labels_df[aggregation_columns].loc[projected_ten_largest_indices].to_dict()
     )
 
-    labels = np.array(["__label__exclude"] * len(projected_estimate))
-    labels[np.nonzero(projected_estimate)] = "__label__include"
+    # TODO: here, project estimate so that the items are each equally spaced from each other, and each is from 0 to 1,
+    # where the lowest item is 0 and highest item is 1.
+    # Then sample "include" with each value as a probability (otherwise exclude). Do 10 times.
+    # The equal spacing between items helps maximize the chance that the fasttext classifier learns
+    # the correct ranks between domains.
+    ranks = np.argsort(np.argsort(estimate))
+    estimate_label_sampling_dist = ranks / (len(estimate) - 1)
+    
+ 
+    print("estimate:", estimate)
+    print("estimate_label_sampling_dist:", estimate_label_sampling_dist) 
 
-    labels_df["label"] = labels
+    if config.sample_labels:
+        labels_samples = []
+        # Define the two labels
+        labels = ["__label__include", "__label__exclude"]
+        #print("estimate:", estimate)
+        #print("estimate_label_sampling_dist:", estimate_label_sampling_dist) 
+        for i in range(20):
+            # Sample labels based on weights
+            # Define the two labels
 
-    def fasttext_label_aggregation(col, col_name):
-        if col_name == "text":
-            return "".join(col)
-        elif pd.api.types.is_string_dtype(col):
-            return col.iloc[0]
-        elif pd.api.types.is_numeric_dtype(col):
-            return col.sum()
-        else:
-            return None
+            sampled_labels = []
+            for weight in estimate_label_sampling_dist:
+                sampled_labels.append(np.random.choice(
+                    labels, 
+                    size=1, 
+                    p=[weight, 1-weight],
+                ).item())
 
-    train_df = ds["train"].to_pandas()
-    train_df = pd.merge(
-        train_df,
-        labels_df,
-        on=aggregation_columns,
-        how="inner",
-    )
-    train_df = train_df.groupby(
-        config.fasttext_label_aggregation, as_index=False
-    ).apply(
-        lambda group: group.apply(
-            lambda col: fasttext_label_aggregation(col, col.name)
-        ),
-        include_groups=False,
-    )
-    train_df = train_df[["label", "text", "token_count"]]
+            sampled_labels = np.array(sampled_labels)
+            print("sampled_labels:", sampled_labels)
+            labels_samples.append(sampled_labels)
+    else:
+        labels = np.array(["__label__exclude"] * len(projected_estimate))
+        labels[np.nonzero(projected_estimate)] = "__label__include"
+        labels_samples = [labels]
+ 
+    train_dfs = []
+    for labels in labels_samples:
+        labels_df["label"] = labels
+
+        def fasttext_label_aggregation(col, col_name):
+            if col_name == "text":
+                return "".join(col)
+            elif pd.api.types.is_string_dtype(col):
+                return col.iloc[0]
+            elif pd.api.types.is_numeric_dtype(col):
+                return col.sum()
+            else:
+                return None
+
+        train_df = ds["train"].to_pandas()
+        train_df = pd.merge(
+            train_df,
+            labels_df,
+            on=aggregation_columns,
+            how="inner",
+        )
+        train_df = train_df.groupby(
+            config.fasttext_label_aggregation, as_index=False
+        ).apply(
+            lambda group: group.apply(
+                lambda col: fasttext_label_aggregation(col, col.name)
+            ),
+            include_groups=False,
+        )
+        train_df = train_df[["label", "text", "token_count"]]
+        train_dfs.append(train_df)
+
+    train_df = pd.concat(train_dfs, ignore_index=True)
 
     test_df = ds["test"].to_pandas()
     test_df = pd.merge(
@@ -170,6 +212,9 @@ for group in config.target_benchmark_groups:
         include_groups=False,
     )
     test_df = test_df[["label", "text", "token_count"]]
+
+    print(train_df)
+    print(test_df)
 
     os.makedirs("fasttext_datasets", exist_ok=True)
 
