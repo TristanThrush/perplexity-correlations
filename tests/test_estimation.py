@@ -13,7 +13,7 @@ from perplexity_correlations.estimation import (
 NUM_SAMPLES = 10000
 DIM = 10
 
-some_sigmas = [0, 0.5]
+some_sigmas = [0, 0.2, 0.5]
 
 X = np.random.randn(NUM_SAMPLES, DIM)
 
@@ -122,23 +122,16 @@ def test_spearmanr():
     for weights in some_weights:
         for f in some_fs:
             for sigma in some_sigmas:
-                # TODO: finish proof for nonzero noise
-                if sigma != 0:
-                    continue
-
                 noise = np.random.randn(NUM_SAMPLES) * sigma
                 y = f(X @ weights + noise)
                 estimate = spearmanr(X, y)
 
-                intermediate_transform = weights / (np.sqrt(2 - (weights**2)))
-                monotonically_transformed_weights = 1 - 6 * (X.shape[0] ** 2) * (
-                    1 / 6
-                    - np.arctan(
-                        intermediate_transform
-                        / np.sqrt(intermediate_transform**2 + 2)
-                    )
-                    / np.pi
-                ) / (X.shape[0] ** 2 - 1)
+                phi_phi_sqr = 1 / 6 - (1 / np.pi) * np.arctan(
+                    weights / np.sqrt(4 * (1 + sigma**2) - weights**2)
+                )
+                monotonically_transformed_weights = 1 - 6 * (
+                    phi_phi_sqr * len(y) ** 3
+                ) / (len(y) * (len(y) ** 2 - 1))
 
                 # The proof says that the estimate equals this in expectation:
                 assert monotonically_transformed_weights == pytest.approx(
