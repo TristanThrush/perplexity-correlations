@@ -24,6 +24,7 @@ JOBID1=$(nlprun -q sphinx --exclude sphinx3,sphinx4,sphinx5,sphinx6,sphinx7,sphi
         --error_output_csv ${10} \
         --bpb_output_csv_prefix ${11} \
         --custom_evals ${12} \
+        --mode ${13} \
         --resume \
         --half_precision \
         --save_model_info \
