@@ -19,6 +19,7 @@ import warnings
 from custom_evals.jeopardy import jeopardy
 from custom_evals.jeopardy_acc import jeopardy_accuracy
 import math
+from tokenization_utils import batch_tokenize_with_percentage_based_indices, compute_average_loss_from_indices, batch_tokenize_with_char_step, batch_tokenize_with_token_str_info, compute_average_loss_from_index_tuples, compute_token_loss_dicts
 
 custom_evals = {"jeopardy": jeopardy, "jeopardy_accuracy": jeopardy_accuracy}
 
@@ -45,8 +46,15 @@ parser.add_argument("--save_model_info", action="store_true")
 parser.add_argument("--device", default="cuda")
 parser.add_argument("--half_precision", action="store_true")
 parser.add_argument("--hf_llm_batch_size", type=int, default=1)
+parser.add_argument("--sub_chunk_char_step", type=int, default=10)  # Small numbers here are disk space intensive, so not reccomended for a large number of documents.
+parser.add_argument("--mode", default="suffix")  # suffix, token, sub_chunk
 
 args = parser.parse_args()
+
+if args.mode == "suffix":
+    percentage_positions_list = [0.01, 0.02, 0.04, 0.08, 0.16, 0.32, 0.64]
+else:
+    percentage_positions_list = []
 
 if args.chunked_pretraining_data_sample == "None":
     args.chunked_pretraining_data_sample = None
@@ -56,6 +64,8 @@ if args.chunked_pretraining_data_sample == "None":
 if args.config is not None:
     with open(args.config, "r") as file:
         config = SimpleNamespace(**yaml.safe_load(file))
+
+    mode = getattr(config, "mode", "suffix")
         
     eleuther_eval_names = []
     eleuther_eval_metrics = []
@@ -98,7 +108,7 @@ if args.config is not None:
 '{output_path}' '{family.family}' '{llm}' '{revision}' '{eleuther_eval_names}' \
 '{eleuther_eval_metrics}' '{eleuther_eval_num_fewshot}' \
 '{eleuther_eval_lower_is_better}' '{config.chunked_pretraining_data_sample}' \
-'{config.error_output_csv}' '{config.bpb_output_csv_prefix}' '{custom_evals}'"
+'{config.error_output_csv}' '{config.bpb_output_csv_prefix}' '{custom_evals}' '{mode}'"
                 subprocess.call(command, shell=True)
     sys.exit()
 
@@ -175,9 +185,14 @@ if args.save_model_info:
 def get_loss_hf(examples):
     texts = examples["text"]
 
-    inputs = tokenizer(texts, return_tensors="pt", padding=True, truncation=False).to(
-        args.device
-    )
+    if args.mode == "suffix":
+        inputs, suffix_indices, char_indices_list = batch_tokenize_with_percentage_based_indices(tokenizer, texts, percentage_positions_list)
+    elif args.mode == "token":
+        inputs, token_strings = batch_tokenize_with_token_str_info(tokenizer, text)
+    else:  # "sub_chunk"
+        inputs, step_indices, char_indices_list = batch_tokenize_with_char_step(tokenizer, texts, args.sub_chunk_char_step)
+        
+    inputs.to(args.device)
 
     # Some models require this.
     inputs["attention_mask"] = inputs["attention_mask"].bool()
@@ -209,25 +224,93 @@ def get_loss_hf(examples):
             loss = loss_fn(shift_logits.view(-1, shift_logits.size(-1)), shift_labels.view(-1))
 
             loss = loss.view(shift_labels.size())
-
-            # This averages while ignoring the padding
-            losses = loss.sum(dim=1) / inputs.attention_mask[..., 1:].sum(dim=1)
+            
+            if args.mode == "suffix":
+                # This averages while ignoring the padding
+                losses = loss.sum(dim=1) / inputs.attention_mask[..., 1:].sum(dim=1)
+                suffix_losses = compute_average_loss_from_indices(loss, suffix_indices, inputs.attention_mask)
+            elif args.mode == "token":
+                step_losses_list = compute_average_loss_from_index_tuples(loss, step_indices, inputs.attention_mask)
+            else:  # "sub_chunk"
+                shifted_token_strings = []
+                for strings in token_strings:
+                    shifted_strings = strings[1:]
+                    shifted_token_strings.append(shifted_strings)
+                token_loss_dicts = compute_token_loss_dicts(loss, inputs.attention_mask, token_strings)
+ 
         except Exception as e:
+            if args.mode == "suffix":
+                losses = torch.full((args.hf_llm_batch_size,), float('nan'))
+                suffix_losses = torch.full((args.hf_llm_batch_size,len(percentage_positions_list)), float('nan'))
+            elif args.mode == "token":
+                token_loss_dicts = [{} for _ in range(args.hf_llm_batch_size)]
+            else:
+                step_losses_list = [[float('nan') for _ in range(len(tuples))] for tuples in step_indices]
+
+    else:     
+        if args.mode == "suffix":
             losses = torch.full((args.hf_llm_batch_size,), float('nan'))
+            suffix_losses = torch.full((args.hf_llm_batch_size,len(percentage_positions_list)), float('nan'))
+        elif args.mode == "token":
+            token_loss_dicts = [{} for _ in range(args.hf_llm_batch_size)]
+        else:
+            step_losses_list = [[float('nan') for _ in range(len(tuples))] for tuples in step_indices]
 
-    else:
-        losses = torch.full((args.hf_llm_batch_size,), float('nan'))
+    if args.mode == "suffix":
+        output_examples = {
+            "id": examples["id"],
+            "chunk": examples["chunk"],
+            "loss": losses.tolist(),
+            "token_count": inputs.attention_mask.sum(dim=1).tolist(),
+            "byte_count": [len(text.encode("utf-8")) for text in texts], 
+        }
 
-    output_examples = {
-        "id": examples["id"],
-        "chunk": examples["chunk"],
-        "loss": losses.tolist(),
-        "token_count": inputs.attention_mask.sum(dim=1).tolist(),
-        "byte_count": [len(text.encode("utf-8")) for text in texts],
-    }
+        for index, item in enumerate(percentage_positions_list):
+            output_examples[f"loss_{str(item)}_percent_prefix"] = suffix_losses[:,index].tolist()
+            output_examples[f"token_count_{str(item)}_percent_prefix"] = inputs.attention_mask[:,suffix_indices[:,index]:].sum(dim=1).tolist() 
+            output_examples[f"byte_count_{str(item)}_percent_prefix"] = [len(text[char_indices[index]:].encode("utf-8")) for text, char_indices in zip(texts, char_indices_list)]
+    
 
-    if "domain" in examples.keys():
-        output_examples["domain"] = examples["domain"]
+        if "domain" in examples.keys():
+            output_examples["domain"] = examples["domain"]
+    elif args.mode == "token":
+        output_examples = {
+            "id": [],
+            "chunk": [],
+            "loss": [],
+            "token_count": [],
+            "byte_count": [],
+        }
+        if "domain" in examples.keys():
+            output_examples["domain"] = []
+        for index, token_loss_dict in enumerate(token_loss_dicts):
+            output_examples["id"].append([examples["id"][index]]*len(token_loss_dict))
+            for token_str, (loss, token_count) in token_loss_dict.items():
+                output_examples["chunk"].append(examples["chunk"][index] + "_" + token_str)
+                output_examples["loss"].append(loss)
+                output_examples["token_count"].append(token_count)
+                output_examples["byte_count"].append(len(token_str.encode("utf-8")))
+                if "domain" in examples.keys():
+                    output_examples["domain"].append(examples["domain"][index])
+    else:  # "sub_chunk" 
+        output_examples = {
+            "id": [],
+            "chunk": [],
+            "loss": [],
+            "token_count": [],
+            "byte_count": [],
+        }
+        if "domain" in examples.keys():
+            output_examples["domain"] = []
+        for index, char_indices in enumerate(char_indices_list):
+            output_examples["id"].append([examples["id"][index]]*len(char_indices))
+            for loss_index, index_pair in enumerate(char_indices):
+                output_examples["chunk"].append(examples["chunk"][index] + "_" + str(index_pair[0]) + ":" + str(index_pair[1]))
+                output_examples["loss"].append(step_losses_list[index][loss_index])
+                output_examples["byte_count"].append(len(texts[index][index_pair[0]:index_pair[1]].encode("utf-8")))
+                output_examples["token_count"].append(inputs.attention_mask[index][index_pair[0]:index_pair[1]].sum(dim=1))
+                if "domain" in examples.keys():
+                    output_examples["domain"].append(examples["domain"][index])
 
     return output_examples
 
@@ -278,42 +361,60 @@ def weighted_mean(df, value_col, weight_col):
     return (df[value_col] * df[weight_col]).sum() / df[weight_col].sum()
 
 
-def aggregate_by_domain_or_id(df, agg_groups):
+def aggregate_by_domain_or_id(df, agg_groups, percent_prefix_designation=""):
+    keep_columns = ["id", "token_count" + percent_prefix_designation, "byte_count" + percent_prefix_designation, "loss" + percent_prefix_designation]
+    if "domain" in df.columns:
+        keep_columns.append("domain")
+    if "chunk" in df.columns:
+        keep_columns.append("chunk")
+    df = df[keep_columns].copy()
     result = df.dropna(axis=0, how="any")
     result = (
         result.groupby(agg_groups)
         .agg(
             loss=(
-                "loss",
-                lambda x: weighted_mean(result.loc[x.index], "loss", "token_count"),
+                "loss" + percent_prefix_designation,
+                lambda x: weighted_mean(result.loc[x.index], "loss" + percent_prefix_designation, "token_count" + percent_prefix_designation),
             ),
-            token_count=("token_count", "sum"),
-            byte_count=("byte_count", "sum"),
+            token_count=("token_count" + percent_prefix_designation, "sum"),
+            byte_count=("byte_count" + percent_prefix_designation, "sum"),
         )
         .reset_index()
     )
     return result
 
+def get_bpb(df, percent_prefix_designation=""): 
+    keep_columns = ["token_count" + percent_prefix_designation, "byte_count" + percent_prefix_designation, "loss" + percent_prefix_designation]
+    if "domain" in df.columns:
+        keep_columns.append("domain")
+    if "chunk" in df.columns:
+        keep_columns.append("chunk")
+    if "id" in df.columns:
+        keep_columns.append("id")
+        df["id"] = df["id"].astype(str)
+    df = df[keep_columns].copy()
 
-def get_bpb(df):
-    df = df.copy()
-    df[new_column_name] = (
-        (df["token_count"] / df["byte_count"]) * df["loss"] / np.log(2)
+    df[new_column_name + percent_prefix_designation] = (
+        (df["token_count" + percent_prefix_designation] / df["byte_count" + percent_prefix_designation]) * df["loss" + percent_prefix_designation] / np.log(2)
     )
-    df.drop(columns=["token_count", "byte_count", "loss"], inplace=True)
-    df["id"]=df["id"].astype(str)
+    df.drop(columns=["token_count" + percent_prefix_designation, "byte_count" + percent_prefix_designation, "loss" + percent_prefix_designation], inplace=True)
+    
     return df
 
+bpb_df_dict = {}
 if args.chunked_pretraining_data_sample is not None:
-    bpb_dfs = [get_bpb(loss_df)]
+    for percent_prefix_designation in [""] + [f"_{str(item)}_percent_prefix" for item in percentage_positions_list]:
+        bpb_dfs = [get_bpb(loss_df, percent_prefix_designation)]
 
-    if "domain" in loss_df.columns:
-        agg_groups = [["chunk", "id", "domain"], ["id", "domain"], ["domain"]]
-    else:
-        agg_groups = [["chunk", "id"], ["id"]]
+        if "domain" in loss_df.columns:
+            agg_groups = [["chunk", "id", "domain"], ["id", "domain"], ["domain"]]
+        else:
+            agg_groups = [["chunk", "id"], ["id"]]
 
-    for agg_group in agg_groups[1:]:
-        bpb_dfs.append(get_bpb(aggregate_by_domain_or_id(loss_df, agg_group)))
+        for agg_group in agg_groups[1:]:
+            bpb_dfs.append(get_bpb(aggregate_by_domain_or_id(loss_df, agg_group, percent_prefix_designation)))
+
+        bpb_df_dict[percent_prefix_designation] = bpb_dfs
 
 
 # Function to safely read, modify, and write to shared CSV file.
@@ -332,7 +433,8 @@ def update_csv_async(
             already_added = False
             try:
                 shared_df = pd.read_csv(csv_file_path)
-                shared_df["id"]=shared_df["id"].astype(str)
+                if "id" in shared_df.columns:
+                    shared_df["id"] = shared_df["id"].astype(str)
                 if new_column_name in shared_df.columns:
                     shared_df = shared_df.drop(columns=[new_column_name])
                     warnings.warn(
@@ -371,17 +473,18 @@ def get_lockfile_pathname(pathname):
 
 
 if args.chunked_pretraining_data_sample is not None:
-    for index in range(len(agg_groups)):
-        bpb_df = bpb_dfs[index]
-        agg_group = agg_groups[index]
-        bpb_output_csv_name = f"{args.bpb_output_csv_prefix}_{agg_group[0]}.csv"
-        bpb_lock_file_pathname = get_lockfile_pathname(bpb_output_csv_name)
-        update_csv_async(
-            bpb_output_csv_name,
-            bpb_lock_file_pathname,
-            bpb_df,
-            agg_group,
-        )
+    for percent_prefix_designation, bpb_dfs in bpb_df_dict.items():
+        for index in range(len(agg_groups)):
+            bpb_df = bpb_dfs[index]
+            agg_group = agg_groups[index]
+            bpb_output_csv_name = f"{args.bpb_output_csv_prefix}_{agg_group[0]}{percent_prefix_designation}.csv"
+            bpb_lock_file_pathname = get_lockfile_pathname(bpb_output_csv_name)
+            update_csv_async(
+                bpb_output_csv_name,
+                bpb_lock_file_pathname,
+                bpb_df,
+                agg_group,
+            )
 
 # Check to see that there are actually evals specified before continuing.
 if len(args.eleuther_eval_names) == 0:
