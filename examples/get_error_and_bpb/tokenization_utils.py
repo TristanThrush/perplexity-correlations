@@ -119,7 +119,10 @@ def batch_tokenize_with_percentage_based_indices(
                 if distance < min_distance:
                     min_distance = distance
                     nearest_token_index = j
-
+            
+            if nearest_token_index is None:
+                # failed
+                return encoded_batch, None, char_indices_list
             nearest_token_indices.append(nearest_token_index)
 
         suffix_indices.append(nearest_token_indices)
