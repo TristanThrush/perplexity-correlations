@@ -7,7 +7,7 @@ def batch_tokenize_with_token_str_info(tokenizer, input_texts: List[str], trunca
     encoded_batch = tokenizer(
         input_texts, padding=True, truncation=truncation, return_tensors="pt"
     )
-    token_strings = [[t.replace("Ġ", "").strip() for t in tokenizer.convert_ids_to_tokens(input_ids)] for input_ids in encoded_batch.input_ids]
+    token_strings = [[t.replace("Ġ", "").replace("▁", "").strip().lower() for t in tokenizer.convert_ids_to_tokens(input_ids)] for input_ids in encoded_batch.input_ids]
     return encoded_batch, token_strings
 
 
@@ -95,11 +95,15 @@ def batch_tokenize_with_percentage_based_indices(
         for text in input_texts
     ]
 
-    # Tokenize using return_tensors="pt" for PyTorch
-    encoded_batch = tokenizer(input_texts, return_offsets_mapping=True, padding=True, truncation=truncation, return_tensors="pt")
+    if percentage_positions_list == []:
+        encoded_batch = tokenizer(input_texts, padding=True, truncation=truncation, return_tensors="pt")
+        return encoded_batch, None, char_indices_list
+    else:
+        # Tokenize using return_tensors="pt" for PyTorch
+        encoded_batch = tokenizer(input_texts, return_offsets_mapping=True, padding=True, truncation=truncation, return_tensors="pt")
 
-    # Convert tensor values to lists for processing
-    offset_mappings = encoded_batch["offset_mapping"].tolist()  # Convert tensor to list
+        # Convert tensor values to lists for processing
+        offset_mappings = encoded_batch["offset_mapping"].tolist()  # Convert tensor to list
 
     suffix_indices = []
     for i, (text, char_indices) in enumerate(zip(input_texts, char_indices_list)):

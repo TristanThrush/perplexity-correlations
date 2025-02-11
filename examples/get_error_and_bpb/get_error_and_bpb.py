@@ -240,7 +240,10 @@ def get_loss_hf(examples):
             if args.mode == "suffix":
                 # This averages while ignoring the padding
                 losses = loss.sum(dim=1) / inputs.attention_mask[..., 1:].sum(dim=1)
-                suffix_losses = compute_average_loss_from_indices(loss, suffix_indices, inputs.attention_mask)
+                if percentage_positions_list != []:
+                    if suffix_indices is None:
+                        raise ValueError("Suffix indices not found for at least one item. Skipping this batch.")
+                    suffix_losses = compute_average_loss_from_indices(loss, suffix_indices, inputs.attention_mask)
             elif args.mode == "token":
                 token_loss_dicts = compute_token_loss_dicts(loss, inputs.attention_mask, token_strings)
             else:  # "sub_chunk"
@@ -273,10 +276,9 @@ def get_loss_hf(examples):
             "token_count": inputs.attention_mask.sum(dim=1).tolist(),
             "byte_count": [len(text.encode("utf-8")) for text in texts], 
         }
-
         for index, item in enumerate(percentage_positions_list):
-            output_examples[f"loss_{str(item)}_percent_prefix"] = suffix_losses[:,index].tolist()
-            output_examples[f"token_count_{str(item)}_percent_prefix"] = inputs.attention_mask[:,suffix_indices[:,index]:].sum(dim=1).tolist() 
+            output_examples[f"loss_{str(item)}_percent_prefix"] = suffix_losses[:,index].tolist() if suffix_indices is not None else [float("nan")]*len(texts)
+            output_examples[f"token_count_{str(item)}_percent_prefix"] = inputs.attention_mask[:,suffix_indices[:,index]:].sum(dim=1).tolist() if suffix_indices is not None else [1]*len(texts)
             output_examples[f"byte_count_{str(item)}_percent_prefix"] = [len(text[char_indices[index]:].encode("utf-8")) for text, char_indices in zip(texts, char_indices_list)]
     
 
@@ -315,7 +317,7 @@ def get_loss_hf(examples):
             output_examples["id"] += [examples["id"][index]]*len(char_indices)
             for loss_index, start_index in enumerate(char_indices):
                 output_examples["chunk"].append(str(examples["chunk"][index]) + "_" + str(start_index) + ":" + str(start_index + args.sub_chunk_char_step))
-                output_examples["loss"].append(step_losses_list[index][loss_index])
+                output_examples["loss"].append(float(step_losses_list[index][loss_index]))
                 output_examples["byte_count"].append(len(texts[index][start_index:start_index + args.sub_chunk_char_step].encode("utf-8")))
                 output_examples["token_count"].append(inputs.attention_mask[index][step_indices[index][loss_index][0]:step_indices[index][loss_index][1]].sum(dim=0))
                 if "domain" in examples.keys():
