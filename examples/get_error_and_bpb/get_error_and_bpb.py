@@ -422,8 +422,21 @@ if args.chunked_pretraining_data_sample is not None:
         else:
             agg_groups = [["chunk", "id"], ["id"]]
 
+        if args.mode == "token":
+            agg_groups.append(["special_token_aggregation"])
+
         for agg_group in agg_groups[1:]:
-            bpb_dfs.append(get_bpb(aggregate_by_domain_or_id(loss_df, agg_group, percent_prefix_designation)))
+            if agg_group == ["special_token_aggregation"]:
+                special_token_aggregated_loss_df = loss_df.copy()
+                special_agg_group = ["chunk", "id"]
+                if "domain" in special_token_aggregated_loss_df.columns:
+                    special_agg_group = ["chunk", "id", "domain"]
+                    special_token_aggregated_loss_df["domain"] = "all_domains"
+                special_token_aggregated_loss_df["id"] = "all_ids"
+                special_token_aggregated_loss_df["chunk"] = df["chunk"].str.split("_").str[1]
+                bpb_dfs.append(get_bpb(aggregate_by_domain_or_id(special_token_aggregated_loss_df, special_agg_group, percent_prefix_designation)))
+            else:
+                bpb_dfs.append(get_bpb(aggregate_by_domain_or_id(loss_df, agg_group, percent_prefix_designation)))
 
         bpb_df_dict[percent_prefix_designation] = bpb_dfs
 

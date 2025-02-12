@@ -71,8 +71,12 @@ for group in config.target_benchmark_groups:
 
     y_df = get_y(pd.read_csv(config.error_csv), group.benchmarks)
 
-    X_df = X_df.dropna(axis=0)
-    y_df = y_df.dropna(axis=0)
+    #X_df.replace([np.inf, -np.inf], np.nan, inplace=True)
+    #y_df.replace([np.inf, -np.inf], np.nan, inplace=True)
+    #X_df = X_df.dropna(axis=0)
+    #y_df = y_df.dropna(axis=0)
+    #X_df = X_df.fillna(0)
+    print("X dim:", X_df)
 
     common_index = y_df.index.intersection(X_df.index)
 
@@ -85,6 +89,8 @@ for group in config.target_benchmark_groups:
     print("X dim:", X.shape)
 
     estimate = estimator(X, y)
+    estimate = np.nan_to_num(estimate, nan=0, posinf=0, neginf=0)
+    X = np.nan_to_num(X, nan=0, posinf=0, neginf=0)
 
     # Just computing this as something interesting to know
     ten_largest_indices = np.argpartition(estimate, -10)[-10:]
