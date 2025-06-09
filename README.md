@@ -200,14 +200,15 @@ token budget.
 https://tristanthrush.github.io/perplexity-correlations/
 
 
-## Real-World Usage Examples
+## Real-World Usage Examples and Precomputed Examples
 
 Navigate to the `examples/` directory for examples of code that might be useful if you
 want to use our package in practice. We provide code to get BPB values and evaluations
 on practically any large group of Hugging Face LLMs, Eleuther Eval Harness benchmarks,
-and Hugging Face pretraining data samples. We also provide code for training fastText
-pretraining data filters from our estimate. We've tried to make it easy to swap in other
-pretraining datasets, LLMs, evaluations, and cluster schedulers.
+and Hugging Face pretraining data samples - as well as the actual values we computed for
+our paper. We also provide code for training fastText pretraining data filters from our
+estimate. We've tried to make it easy to swap in other pretraining datasets, LLMs,
+evaluations, and cluster schedulers.
 
 
 ## Development guidelines
